@@ -604,28 +604,82 @@ describe('vCard parsing', () => {
           hasErrors: true,
           nags: [
             {
-              attributes: { property: 'BEGIN' },
+              key: 'VCARD_NOT_BEGIN',
               description: 'vCard did not start with BEGIN line',
               isError: true,
-              key: 'VCARD_NOT_BEGIN',
-            },
-            {
               attributes: { property: 'BEGIN' },
-              description: 'Missing required property',
-              isError: true,
-              key: 'VCARD_MISSING_PROP',
             },
             {
+              key: 'VCARD_BAD_TYPE',
+              description: 'Not a vCard',
+              isError: true,
+              attributes: { property: 'BEGIN' },
+            },
+            {
+              key: 'VCARD_MISSING_PROP',
+              description: 'Missing required property',
+              isError: true,
+              attributes: { property: 'BEGIN' },
+            },
+            {
+              key: 'VCARD_MISSING_PROP',
+              description: 'Missing required property',
+              isError: true,
               attributes: { property: 'VERSION' },
-              description: 'Missing required property',
-              isError: true,
-              key: 'VCARD_MISSING_PROP',
             },
             {
-              attributes: { property: 'FN' },
+              key: 'VCARD_MISSING_PROP',
               description: 'Missing required property',
               isError: true,
+              attributes: { property: 'FN' },
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it('should somehow handle bogus cards', () => {
+    expect(
+      parseVCards('BEGIN:VCALENDAR\r\nVERSION:5.0\r\nFN:\r\n \r\n', true),
+    ).toStrictEqual({
+      vCards: [
+        {
+          BEGIN: { value: 'VCALENDAR' },
+          VERSION: { value: '5.0' },
+          FN: [{ value: '' }],
+          END: { value: 'VCARD' },
+          hasErrors: true,
+          nags: [
+            {
+              key: 'VCARD_BAD_TYPE',
+              description: 'Not a vCard',
+              isError: true,
+              attributes: { property: 'BEGIN' },
+            },
+            {
+              key: 'VCARD_BAD_TYPE',
+              description: 'Not a vCard',
+              isError: true,
+              attributes: { property: 'END' },
+            },
+            {
+              key: 'VALUE_INVALID',
+              description: 'Invalid property value',
+              isError: true,
+              attributes: { line: 'BEGIN:VCALENDAR', property: 'BEGIN' },
+            },
+            {
+              key: 'VALUE_INVALID',
+              description: 'Invalid property value',
+              isError: true,
+              attributes: { line: 'VERSION:5.0', property: 'VERSION' },
+            },
+            {
               key: 'VCARD_MISSING_PROP',
+              description: 'Missing required property',
+              isError: true,
+              attributes: { property: 'END' },
             },
           ],
         },

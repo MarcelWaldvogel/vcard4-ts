@@ -4,6 +4,7 @@ import { scanSingleValue } from './scan';
 import { isPropertyChar, nameToKey } from './utils';
 import {
   atLeastOnceProperties,
+  ExactlyOnceProperties,
   exactlyOnceProperties,
   isAtLeastOnceProperty,
   isAtMostOnceProperty,
@@ -12,6 +13,7 @@ import {
   isKnowProperty,
   knownParameters,
   knownProperties,
+  KnownPropertyNames,
   SingleVCardProperty,
   VCard4,
   VCardParameters,
@@ -117,20 +119,22 @@ function ensureCardinalities(
 ): VCard4 | null {
   // Major problems
   if (partialVCard.didNotStartWithBEGIN === true) {
-    if (!keepDefective) {
+    if (keepDefective) {
+      nagVC(partialVCard.nags, 'VCARD_NOT_BEGIN', { property: 'BEGIN' });
+    } else {
       nag(globalNags, 'VCARD_NOT_BEGIN');
       return null;
-    } else {
-      nagVC(partialVCard.nags, 'VCARD_NOT_BEGIN', { property: 'BEGIN' });
     }
   }
-  if (
-    !keepDefective &&
-    (partialVCard.BEGIN?.value?.toUpperCase() !== 'VCARD' ||
-      partialVCard.END?.value?.toUpperCase() !== 'VCARD')
-  ) {
-    nag(globalNags, 'VCARD_BAD_TYPE');
-    return null;
+  for (const property of ['BEGIN', 'END'] as const) {
+    if (partialVCard[property]?.value?.toUpperCase() !== 'VCARD') {
+      if (keepDefective) {
+        nagVC(partialVCard.nags, 'VCARD_BAD_TYPE', { property });
+      } else {
+        nag(globalNags, 'VCARD_BAD_TYPE');
+        return null;
+      }
+    }
   }
 
   // Cardinality '1' properties
@@ -146,7 +150,6 @@ function ensureCardinalities(
             property: k,
             line: `${k}:${partialVCard[k].value}`,
           });
-          partialVCard[k].value = expectedValue;
         }
       }
     }
