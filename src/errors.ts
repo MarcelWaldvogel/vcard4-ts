@@ -30,7 +30,6 @@ export type VCardNagAttributes = {
   property: string;
   parameter?: string;
   line?: string;
-  shortLine?: string;
 };
 /**
  * Append a nag specific to a vCard or vCard line
@@ -44,7 +43,8 @@ export function nagVC(
   attributes: VCardNagAttributes,
 ) {
   if ('line' in attributes) {
-    attributes.shortLine = shorten(attributes.line);
+    // Shorten the potentially homunguous unwrapped lines (e.g. PHOTO)
+    attributes.line = shorten(attributes.line);
   }
   nag(nags, key, attributes);
 }

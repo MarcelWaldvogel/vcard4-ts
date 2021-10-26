@@ -325,13 +325,31 @@ describe('String parameter parsing', () => {
     );
     expect(nags).toStrictEqual([]);
   });
-  it('should handle unescaped commas after backslashes', () => {
+  it('should handle (and detect) unescaped commas after backslashes', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(
       parseParameters('x;LANGUAGE=v1\\\\,v2:x', 1, nags, 'X'),
     ).toStrictEqual({
       parameters: { LANGUAGE: 'v1\\,v2' },
       end: 18,
+    });
+    expect(nags).toNagAbout('PARAM_UNESCAPED_COMMA');
+  });
+  it('should handle quoted values', () => {
+    let nags: Nag<VCardNagAttributes>[] = [];
+    expect(parseParameters('x;LANGUAGE="abc":x', 1, nags, 'X')).toStrictEqual({
+      parameters: { LANGUAGE: 'abc' },
+      end: 16,
+    });
+    expect(nags).toStrictEqual([]);
+  });
+  it('should handle special chars in quoted values', () => {
+    let nags: Nag<VCardNagAttributes>[] = [];
+    expect(
+      parseParameters('x;LANGUAGE="a,b;c:d":x', 1, nags, 'X'),
+    ).toStrictEqual({
+      parameters: { LANGUAGE: 'a,b;c:d' },
+      end: 20,
     });
     expect(nags).toStrictEqual([]);
   });

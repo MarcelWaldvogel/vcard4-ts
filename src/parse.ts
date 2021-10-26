@@ -231,8 +231,6 @@ export function parseLine(vCardInProgress: PartialVCard, line: string) {
   }
 }
 
-type GroupedProperty = { group?: string; property: string; end: number };
-
 /**
  * Scan a group or property name.
  * @param line The entire line
@@ -257,6 +255,8 @@ export function scanPropertyOrGroup(
   nagVC(nags, 'PROP_NAME_EOL', { property: line.substring(start), line });
   return null;
 }
+
+type GroupedProperty = { group?: string; property: string; end: number };
 
 /**
  * Extract (group and) property names.
@@ -286,37 +286,9 @@ export function extractProperty(
 }
 
 /**
- * Scan a lone parameter value, unescaping it
- * @param line The line to be parsed
- * @param start The offset to start parsing at
- * @returns The parsed value and the end offset of it
- */
-export function scanValue(
-  line: string,
-  start: number,
-): { value: string; end: number } {
-  let index = start;
-  let value = '';
-  while (index < line.length && !'":;'.includes(line.charAt(index))) {
-    if (line.charAt(index) === '\\') {
-      if (line.charAt(index + 1).toUpperCase() === 'N') {
-        value += '\n';
-      } else {
-        value += line.charAt(index + 1);
-      }
-      index += 2;
-    } else {
-      value += line.charAt(index);
-      index++;
-    }
-  }
-  return { value, end: index };
-}
-
-/**
  * Scan a lone parameter value, without unescaping it
  * @param line The line to be parsed
- * @param start The offset to start parsing at
+ * @param start The offset to start parsing at (*after* the equals sign!)
  * @returns The parsed value and the end offset of it
  */
 export function scanParamRawValue(
@@ -337,6 +309,7 @@ export function scanParamRawValue(
  * @param property The name of the property this parameter belongs to
  * @param parameter The name of the parameter
  * @param nags The list of all complaints
+ * @param singleValue Do not treat commas as separator
  * @returns A string[] value and a parsing end, or null
  */
 export function scanParamValues(
@@ -345,11 +318,20 @@ export function scanParamValues(
   property: string,
   parameter: string,
   nags: Nag<VCardNagAttributes>[],
+  singleValue: boolean = false,
 ): { value: string[]; end: number } | null {
+  const moreItemsChar = singleValue ? '' : ',';
+  const separatorChars = singleValue ? ';:' : ',;:';
   let index = start;
   let parameterValues: string[] = [];
-  while (line.charAt(index) === (parameterValues.length === 0 ? '=' : ',')) {
+  let unescapedComma = false;
+  while (
+    line.charAt(index) === (parameterValues.length === 0 ? '=' : moreItemsChar)
+  ) {
     index++;
+    if (line.charAt(index) === ',') {
+      unescapedComma = true;
+    }
     if (line.charAt(index) === '"') {
       // Quoted value
       const closingQuote = line.indexOf('"', index + 1);
@@ -362,7 +344,13 @@ export function scanParamValues(
     } else {
       // Potentially escaped value
       let currentValue = '';
-      while (index < line.length && !',;:'.includes(line.charAt(index))) {
+      while (
+        index < line.length &&
+        !separatorChars.includes(line.charAt(index))
+      ) {
+        if (line.charAt(index) === ',') {
+          unescapedComma = true;
+        }
         if (line.charAt(index) === '\\') {
           const escaped = line.charAt(index + 1);
           if (escaped.toUpperCase() === 'N') {
@@ -378,13 +366,46 @@ export function scanParamValues(
       parameterValues.push(currentValue);
     }
   }
+  if (unescapedComma) {
+    // Only warn once per parameter
+    nagVC(nags, 'PARAM_UNESCAPED_COMMA', { property, parameter, line });
+  }
   return { value: parameterValues, end: index };
+}
+
+/**
+ * Scan a lone parameter value, unescaping it
+ * @param line The line to be parsed
+ * @param start The offset to start parsing at (the equals sign)
+ * @param property The name of the property this parameter belongs to
+ * @param parameter The name of the parameter
+ * @param nags The list of all complaints
+ * @returns The parsed value and the end offset of it
+ */
+export function scanParamValue(
+  line: string,
+  start: number,
+  property: string,
+  parameter: string,
+  nags: Nag<VCardNagAttributes>[],
+): { value: string; end: number } | null {
+  const result = scanParamValues(line, start, property, parameter, nags, true);
+  if (result) {
+    if (result.value.length === 1) {
+      return { value: result.value[0], end: result.end };
+    } else {
+      nagVC(nags, 'PARAM_NOT_SINGLE', { property, parameter, line });
+      return null;
+    }
+  } else {
+    return null;
+  }
 }
 
 /**
  * Parse the parameters. Used after scanning the property or group. What remains should be the value.
  * @param line The vCard line to be analyzed
- * @param start The offset where to start parsing
+ * @param start The offset where to start parsing (the equals sign)
  * @returns A record of VCardParameters, and the end offset.
  */
 export function parseParameters(
@@ -414,22 +435,12 @@ export function parseParameters(
       });
       return null;
     }
-    index++;
+    // Index still points at the equals sign!
 
     // Value(s)
     if (isKnownParameter(parameterName)) {
       switch (knownParameters[parameterName].name) {
         case 'string':
-          if (parameterName in parameters) {
-            nagVC(nags, 'PARAM_DUPLICATE', {
-              property,
-              parameter: parameterName,
-              line,
-            });
-          }
-          ({ value: (parameters as any)[parameterName], end: index } =
-            scanValue(line, index));
-          break;
         case 'number':
           {
             if (parameterName in parameters) {
@@ -439,17 +450,31 @@ export function parseParameters(
                 line,
               });
             }
-            const { value, end } = scanValue(line, index);
-            index = end;
-            const num = parseInt(value, 10);
-            if (isFinite(num)) {
-              (parameters as any)[parameterName] = num;
+            const retval = scanParamValue(
+              line,
+              index,
+              property,
+              parameterName,
+              nags,
+            );
+            if (retval) {
+              index = retval.end;
+              if (knownParameters[parameterName].name === 'number') {
+                const num = parseInt(retval.value, 10);
+                if (isFinite(num)) {
+                  (parameters as any)[parameterName] = num;
+                } else {
+                  nagVC(nags, 'PARAM_INVALID_NUMBER', {
+                    property,
+                    parameter: parameterName,
+                    line,
+                  });
+                }
+              } else {
+                (parameters as any)[parameterName] = retval.value;
+              }
             } else {
-              nagVC(nags, 'PARAM_INVALID_NUMBER', {
-                property,
-                parameter: parameterName,
-                line,
-              });
+              return null;
             }
           }
           break;
@@ -457,7 +482,7 @@ export function parseParameters(
           // Re-scan the `=`
           const values = scanParamValues(
             line,
-            index - 1,
+            index,
             property,
             parameterName,
             nags,
@@ -477,16 +502,28 @@ export function parseParameters(
           break;
         default:
           // Skip over this unknown type
-          ({ end: index } = scanValue(line, index));
+          const retval = scanParamValue(
+            line,
+            index,
+            property,
+            parameterName,
+            nags,
+          );
           nagVC(nags, 'PARAM_INVALID_TYPE', {
             property,
             parameter: parameterName,
             line,
           });
+          if (retval) {
+            index = retval.end;
+          } else {
+            return null;
+          }
       }
     } else {
       parameters.unrecognized ??= {};
-      const { value, end } = scanParamRawValue(line, index);
+      // scanParamRawValue, unlike scanParamValue(s), starts *after* the equals sign
+      const { value, end } = scanParamRawValue(line, index + 1);
       if (parameterName in parameters.unrecognized) {
         // This is inconsistent:
         // `KEY=value;KEY=v2` results in `{KEY: ['value', 'v2']}`, whereas
