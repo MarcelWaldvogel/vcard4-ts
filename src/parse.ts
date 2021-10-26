@@ -1,5 +1,6 @@
 import { nag, Nag, nagVC, VCardNagAttributes } from './errors';
 import { maybeArray, NonEmptyArray } from './nonEmptyArray';
+import { scanSingleValue } from './scan';
 import { isPropertyChar, nameToKey } from './utils';
 import {
   atLeastOnceProperties,
@@ -11,6 +12,7 @@ import {
   isKnowProperty,
   knownParameters,
   knownProperties,
+  SingleVCardProperty,
   VCard4,
   VCardParameters,
 } from './vcard4Types';
@@ -73,7 +75,7 @@ export function parseVCards(
     }
   }
   // vCard still in progress?
-  if (vCardInProgress !== { nags: [] }) {
+  if (interestingDataIn(vCardInProgress)) {
     const card = ensureCardinalities(
       globalNags,
       vCardInProgress,
@@ -83,7 +85,22 @@ export function parseVCards(
       vCards.push(card);
     }
   }
-  return { vCards: maybeArray(vCards), nags: maybeArray(globalNags) };
+
+  // Clean return value
+  let retval = { vCards: maybeArray(vCards), nags: maybeArray(globalNags) };
+  if (!retval.vCards) {
+    delete retval.vCards;
+  }
+  if (!retval.nags) {
+    delete retval.nags;
+  }
+  return retval;
+}
+
+function interestingDataIn(partialVCard: PartialVCard): boolean {
+  return (
+    Object.entries(partialVCard).length > 1 || partialVCard.nags.length > 0
+  );
 }
 
 /**
@@ -122,7 +139,7 @@ function ensureCardinalities(
       // Type guard needed to make the compiler happy
       if (!(k in partialVCard)) {
         nagVC(partialVCard.nags, 'VCARD_MISSING_PROP', { property: k });
-        partialVCard[k].value = expectedValue;
+        partialVCard[k] = { value: expectedValue };
       } else {
         if (partialVCard[k].value.toUpperCase() !== expectedValue) {
           nagVC(partialVCard.nags, 'VALUE_INVALID', {
@@ -146,8 +163,37 @@ function ensureCardinalities(
     }
   }
 
-  // Nags
+  // Clean: Remove undefined parameters
+  for (const [key] of Object.entries(partialVCard)) {
+    const k = key as keyof typeof partialVCard;
+    if (isKnowProperty(k)) {
+      if (isAtMostOnceProperty(k) || isExactlyOnceProperty(k)) {
+        const v: SingleVCardProperty<any> = partialVCard[k];
+        if (
+          'parameters' in v &&
+          (!v.parameters || Object.keys(v.parameters).length === 0)
+        ) {
+          delete partialVCard[k].parameters;
+        }
+      } else {
+        const v: NonEmptyArray<SingleVCardProperty<any>> = partialVCard[k];
+        for (const i in v) {
+          if (
+            'parameters' in v[i] &&
+            (!v[i].parameters || Object.keys(v[i].parameters).length === 0)
+          ) {
+            delete partialVCard[k][i].parameters;
+          }
+        }
+      }
+    }
+  }
+
+  // Clean Nags; set hasErrors
   partialVCard.nags = maybeArray(partialVCard.nags);
+  partialVCard.hasErrors = (partialVCard.nags ?? [])
+    .map((nag) => nag.isError)
+    .reduce((a, b) => a || b, false);
   if (!partialVCard.nags) {
     delete partialVCard.nags;
   }
@@ -339,7 +385,9 @@ export function scanParamValues(
         nagVC(nags, 'PARAM_UNCLOSED_QUOTE', { property, parameter, line });
         return null;
       }
-      parameterValues.push(unescape(line.substring(index + 1, closingQuote)));
+      parameterValues.push(
+        scanSingleValue(line.substring(index + 1, closingQuote), null),
+      );
       index = closingQuote + 1;
     } else {
       // Potentially escaped value

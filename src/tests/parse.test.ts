@@ -1,6 +1,5 @@
 import { Nag, VCardNagAttributes } from '../errors';
 import { errorKeys } from '../errorCodes';
-import { scan2DValue } from '../scan';
 import {
   scanPropertyOrGroup,
   extractProperty,
@@ -30,10 +29,44 @@ expect.extend({
     }
   },
 });
+expect.extend({
+  toNagAboutMany(received, errors: errorKeys[]) {
+    let pass: boolean;
+    if (Array.isArray(received)) {
+      const r = received
+        .map((v) => {
+          if ('key' in v) {
+            return v.key;
+          } else {
+            return undefined;
+          }
+        })
+        .sort();
+      const e = errors.sort();
+      pass = r === e;
+    } else {
+      pass = false;
+    }
+    if (pass) {
+      return {
+        message: () =>
+          `expected ${JSON.stringify(received)} not to nag about ${errors}`,
+        pass: true,
+      };
+    } else {
+      return {
+        message: () =>
+          `expected ${JSON.stringify(received)} to nag about ${errors}`,
+        pass: false,
+      };
+    }
+  },
+});
 declare global {
   namespace jest {
     interface Matchers<R> {
       toNagAbout(a: errorKeys): R;
+      toNagAboutMany(a: errorKeys[]): R;
     }
   }
 }
@@ -353,6 +386,26 @@ describe('String parameter parsing', () => {
     });
     expect(nags).toStrictEqual([]);
   });
+  it('should handle newlines in quoted values', () => {
+    let nags: Nag<VCardNagAttributes>[] = [];
+    expect(
+      parseParameters('x;LANGUAGE="A\\nB\\\\nC":x', 1, nags, 'X'),
+    ).toStrictEqual({
+      parameters: { LANGUAGE: 'A\nB\\nC' },
+      end: 21,
+    });
+    expect(nags).toStrictEqual([]);
+  });
+  it('should ignore most other backslashes in quoted values', () => {
+    let nags: Nag<VCardNagAttributes>[] = [];
+    expect(
+      parseParameters('x;LANGUAGE="a\\,b;c:d\\":x', 1, nags, 'X'),
+    ).toStrictEqual({
+      parameters: { LANGUAGE: 'a,b;c:d' },
+      end: 22,
+    });
+    expect(nags).toStrictEqual([]);
+  });
 });
 
 describe('Multi-string parameter parsing', () => {
@@ -464,17 +517,125 @@ describe('Multi-string parameter parsing', () => {
     });
     expect(nags).toStrictEqual([]);
   });
+  it('should handle newlines in quoted values', () => {
+    let nags: Nag<VCardNagAttributes>[] = [];
+    expect(
+      parseParameters('x;TYPE="A\\nB\\\\nC":x', 1, nags, 'X'),
+    ).toStrictEqual({
+      parameters: { TYPE: ['A\nB\\nC'] },
+      end: 17,
+    });
+    expect(nags).toStrictEqual([]);
+  });
+  it('should ignore most other backslashes in quoted values', () => {
+    let nags: Nag<VCardNagAttributes>[] = [];
+    expect(
+      parseParameters('x;TYPE="a\\,b;c:d\\":x', 1, nags, 'X'),
+    ).toStrictEqual({
+      parameters: { TYPE: ['a,b;c:d'] },
+      end: 18,
+    });
+    expect(nags).toStrictEqual([]);
+  });
+  it('should handle multiple quoted values', () => {
+    let nags: Nag<VCardNagAttributes>[] = [];
+    expect(
+      parseParameters('x;TYPE="a b c","d e f":x', 1, nags, 'X'),
+    ).toStrictEqual({
+      parameters: { TYPE: ['a b c', 'd e f'] },
+      end: 22,
+    });
+    expect(nags).toStrictEqual([]);
+  });
+  it('should handle mixed values', () => {
+    let nags: Nag<VCardNagAttributes>[] = [];
+    expect(
+      parseParameters('x;TYPE="a b c",d e f,"g h i":x', 1, nags, 'X'),
+    ).toStrictEqual({
+      parameters: { TYPE: ['a b c', 'd e f', 'g h i'] },
+      end: 28,
+    });
+    expect(nags).toStrictEqual([]);
+  });
 });
 
-describe('Line parsing', () => {
-  it('should split values', () => {
-    expect(scan2DValue('A,B;C;D,E;F;;,G')).toStrictEqual([
-      ['A', 'B'],
-      ['C'],
-      ['D', 'E'],
-      ['F'],
-      [''],
-      ['', 'G'],
-    ]);
+describe('vCard parsing', () => {
+  it('should put things together', () => {
+    expect(
+      parseVCards(
+        'BEGIN:VCARD\r\nVERSION:4.0\r\nFN:Marcel Wald\r\n vogel\r\nADR;type=work:;;Oberstadt 8;Stein am Rhein;;8260;Switzerland\r\nEND:VCARD\r\n',
+        true,
+      ),
+    ).toStrictEqual({
+      vCards: [
+        {
+          BEGIN: { value: 'VCARD' },
+          VERSION: { value: '4.0' },
+          FN: [{ value: 'Marcel Waldvogel' }],
+          ADR: [
+            {
+              parameters: { TYPE: ['work'] },
+              value: {
+                postOfficeBox: [''],
+                extendedAddress: [''],
+                streetAddress: ['Oberstadt 8'],
+                locality: ['Stein am Rhein'],
+                region: [''],
+                postalCode: ['8260'],
+                countryName: ['Switzerland'],
+              },
+            },
+          ],
+          END: { value: 'VCARD' },
+          hasErrors: false,
+        },
+      ],
+    });
   });
+
+  it('should nag about underspecified cards', () => {
+    expect(parseVCards('END:VCARD', true)).toStrictEqual({
+      vCards: [
+        {
+          BEGIN: { value: 'VCARD' },
+          END: { value: 'VCARD' },
+          FN: [{ value: '*** Missing Full Name ***' }],
+          VERSION: { value: '4.0' },
+          hasErrors: true,
+          nags: [
+            {
+              attributes: { property: 'BEGIN' },
+              description: 'vCard did not start with BEGIN line',
+              isError: true,
+              key: 'VCARD_NOT_BEGIN',
+            },
+            {
+              attributes: { property: 'BEGIN' },
+              description: 'Missing required property',
+              isError: true,
+              key: 'VCARD_MISSING_PROP',
+            },
+            {
+              attributes: { property: 'VERSION' },
+              description: 'Missing required property',
+              isError: true,
+              key: 'VCARD_MISSING_PROP',
+            },
+            {
+              attributes: { property: 'FN' },
+              description: 'Missing required property',
+              isError: true,
+              key: 'VCARD_MISSING_PROP',
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  // it('should work with an exotic vCard', () => {
+  //   expect(parseVCards('BEGIN:VCARD\n', true)).toStrictEqual({
+  //     vCards: [],
+  //   });
+  //  });
 });

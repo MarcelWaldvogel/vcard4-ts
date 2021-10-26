@@ -9,7 +9,7 @@ import { NonEmptyArray } from './nonEmptyArray';
  */
 export function scanSingleValue(
   s: string,
-  errorCallback: (error: errorKeys) => void,
+  errorCallback: ((error: errorKeys) => void) | null,
 ): string {
   let index = 0;
   let value = '';
@@ -30,7 +30,7 @@ export function scanSingleValue(
       value += s.charAt(index++);
     }
   }
-  if (unescapedComma) {
+  if (unescapedComma && errorCallback) {
     errorCallback('VALUE_UNESCAPED_COMMA');
   }
   return value;

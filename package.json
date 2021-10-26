@@ -20,7 +20,12 @@
   },
   "jest": {
     "preset": "ts-jest",
-    "testEnvironment": "node"
+    "testPathIgnorePatterns": ["/node_modules/", "/dist/"],
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/*.ts"
+    ]
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
