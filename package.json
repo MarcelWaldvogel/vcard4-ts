@@ -1,0 +1,34 @@
+{
+  "name": "vcard4-ts",
+  "version": "0.1.0",
+  "description": "A vCard v4 parser with type safety first",
+  "type": "module",
+  "exports": "./dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": "https://github.com/MarcelWaldvogel/vcard4-ts",
+  "author": "Marcel Waldvogel",
+  "license": "MIT",
+  "scripts": {
+    "test": "jest",
+    "test-watch": "jest --watch",
+    "vscode-jest-tests": "jest",
+    "build": "tsc",
+    "prepublish": "yarn build"
+  },
+  "engines": {
+    "node": "^12.20.0 || ^14.13.1 || >=16.0.0"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.2",
+    "@typescript-eslint/parser": "^5.0.0",
+    "eslint": "^8.0.0",
+    "jest": "^26.0.0",
+    "prettier": "^2.0.0",
+    "ts-jest": "^26",
+    "typescript": "^4.0.0"
+  }
+}
