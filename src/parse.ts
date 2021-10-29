@@ -189,6 +189,16 @@ function ensureCardinalities(
       }
     }
   }
+  for (const [k, v] of Object.entries(partialVCard.unrecognized ?? {})) {
+    for (const i in v) {
+      if (
+        'parameters' in v[i] &&
+        (!v[i].parameters || Object.keys(v[i].parameters).length === 0)
+      ) {
+        delete partialVCard.unrecognized[k][i].parameters;
+      }
+    }
+  }
 
   // Clean Nags; set hasErrors
   partialVCard.nags = maybeArray(partialVCard.nags);
@@ -229,6 +239,7 @@ export function parseLine(vCardInProgress: PartialVCard, line: string) {
   }
   const parameters = parameterInfo.parameters;
   if (line.charAt(parameterInfo.end) !== ':') {
+    // Should not happen
     nagVC(vCardInProgress.nags, 'PROP_MISSING_COLON', { property, line });
     return;
   }
@@ -265,6 +276,7 @@ export function parseLine(vCardInProgress: PartialVCard, line: string) {
     }
   } else {
     // Add unrecognized property
+    vCardInProgress.unrecognized ??= {};
     if (property in vCardInProgress.unrecognized) {
       vCardInProgress.unrecognized[property].push({
         parameters,

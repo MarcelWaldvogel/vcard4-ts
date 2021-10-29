@@ -5,6 +5,7 @@ import {
   extractProperty,
   parseParameters,
   parseVCards,
+  parseLine,
   PartialVCard,
 } from '../parse';
 
@@ -565,7 +566,60 @@ describe('Multi-string parameter parsing', () => {
   });
 });
 
+describe('Line parsing', () => {
+  it('should nag on empty property', () => {
+    let partialVCard: PartialVCard = { nags: [] };
+    parseLine(partialVCard, ':x');
+    expect(partialVCard).toStrictEqual({
+      nags: [
+        {
+          key: 'PROP_NAME_EMPTY',
+          description: 'Empty property or group name',
+          isError: true,
+          attributes: { line: ':x', property: '' },
         },
+      ],
+    });
+  });
+  it('should nag on bad parameter', () => {
+    let partialVCard: PartialVCard = { nags: [] };
+    parseLine(partialVCard, 'ADR;y:x');
+    expect(partialVCard).toStrictEqual({
+      nags: [
+        {
+          key: 'PARAM_MISSING_EQUALS',
+          description: 'Missing equals sign after parameter name',
+          isError: true,
+          attributes: { line: 'ADR;y:x', property: 'ADR', parameter: 'Y' },
+        },
+      ],
+    });
+  });
+  it('should nag on bad value', () => {
+    let partialVCard: PartialVCard = { nags: [] };
+    parseLine(partialVCard, 'PHOTO:data:image/jpeg;base64,/9j/');
+    expect(partialVCard).toStrictEqual({
+      PHOTO: [
+        {
+          parameters: {},
+          value: 'data:image/jpeg;base64,/9j/',
+        },
+      ],
+      nags: [
+        {
+          key: 'VALUE_UNESCAPED_COMMA',
+          description: 'Unescaped comma in value',
+          isError: false,
+          attributes: {
+            line: 'PHOTO:data:image/jpeg;base64,…',
+            property: 'PHOTO',
+          },
+        },
+      ],
+    });
+  });
+});
+
 describe('vCard parsing', () => {
   it('should put things together', () => {
     expect(
@@ -735,7 +789,33 @@ describe('vCard parsing', () => {
       ],
     });
   });
-
+  it('should nag about duplicate properties', () => {
+    expect(
+      parseVCards(
+        'BEGIN:VCARD\r\nVERSION:4.0\r\nFN:Marcel Waldvogel\r\nUID:123\r\nUID:456\r\nEND:VCARD\r\n',
+        true,
+      ),
+    ).toStrictEqual({
+      vCards: [
+        {
+          BEGIN: { value: 'VCARD' },
+          VERSION: { value: '4.0' },
+          FN: [{ value: 'Marcel Waldvogel' }],
+          UID: { value: '123' },
+          END: { value: 'VCARD' },
+          hasErrors: true,
+          nags: [
+            {
+              key: 'PROP_DUPLICATE',
+              description: 'Illegal duplicate property',
+              isError: true,
+              attributes: { line: 'UID:456', property: 'UID' },
+            },
+          ],
+        },
+      ],
+    });
+  });
   it('should handle multiple vCards', () => {
     expect(
       parseVCards(
@@ -756,6 +836,25 @@ describe('vCard parsing', () => {
           VERSION: { value: '4.0' },
           FN: [{ value: 'Jane Doe' }],
           END: { value: 'VCARD' },
+          hasErrors: false,
+        },
+      ],
+    });
+  });
+  it('should handle unrecognized properties', () => {
+    expect(
+      parseVCards(
+        'BEGIN:VCARD\r\nVERSION:4.0\r\nFN;SORT-AS=MW:Marcel Waldvogel\r\nX-ABUID:999\r\nEND:VCARD',
+        true,
+      ),
+    ).toStrictEqual({
+      vCards: [
+        {
+          BEGIN: { value: 'VCARD' },
+          VERSION: { value: '4.0' },
+          FN: [{ parameters: { SORT_AS: ['MW'] }, value: 'Marcel Waldvogel' }],
+          END: { value: 'VCARD' },
+          unrecognized: { X_ABUID: [{ value: '999' }] },
           hasErrors: false,
         },
       ],
