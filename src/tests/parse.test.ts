@@ -660,7 +660,7 @@ describe('vCard parsing', () => {
         {
           BEGIN: { value: 'VCARD' },
           END: { value: 'VCARD' },
-          FN: [{ value: '*** Missing Full Name ***' }],
+          FN: [{ value: '' }],
           VERSION: { value: '4.0' },
           hasErrors: true,
           nags: [
@@ -891,6 +891,36 @@ describe('vCard parsing', () => {
                 line: 'FN;LANGUAGE=de,en:Marcel Wald…',
                 parameter: 'LANGUAGE',
                 property: 'FN',
+              },
+            },
+          ],
+        },
+      ],
+    });
+  });
+  it('should nag about unclosed parameter quotes', () => {
+    expect(
+      parseVCards(
+        'BEGIN:VCARD\r\nVERSION:4.0\r\nFN:Marcel Waldvogel\r\nUID;LANGUAGE="de:123\r\nEND:VCARD',
+        true,
+      ),
+    ).toStrictEqual({
+      vCards: [
+        {
+          BEGIN: { value: 'VCARD' },
+          VERSION: { value: '4.0' },
+          FN: [{ value: 'Marcel Waldvogel' }],
+          END: { value: 'VCARD' },
+          hasErrors: true,
+          nags: [
+            {
+              key: 'PARAM_UNCLOSED_QUOTE',
+              description: 'Quoted parameter missing closing quote',
+              isError: true,
+              attributes: {
+                line: 'UID;LANGUAGE="de:123',
+                parameter: 'LANGUAGE',
+                property: 'UID',
               },
             },
           ],

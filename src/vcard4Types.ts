@@ -100,7 +100,7 @@ export const isExactlyOnceProperty = keyTypeGuard(exactlyOnceProperties);
 
 // "1*" cardinality properties from RFC 6350
 // Value is default
-export const atLeastOnceProperties = { FN: '*** Missing Full Name ***' };
+export const atLeastOnceProperties = { FN: '' };
 export type AtLeastOncePropertyNames = keyof typeof atLeastOnceProperties;
 export type AtLeastOnceProperties = Pick<
   typeof knownProperties,
