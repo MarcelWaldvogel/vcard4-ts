@@ -5,6 +5,7 @@ import {
   extractProperty,
   parseParameters,
   parseVCards,
+  PartialVCard,
 } from '../parse';
 
 expect.extend({
@@ -91,7 +92,7 @@ describe('Property name parsing', () => {
   it('should now also accept property starting with a dash', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(scanPropertyOrGroup('-ADR;x=y:z', 0, nags)).toStrictEqual({
-      name: '-ADR',
+      name: '_ADR',
       end: 4,
     });
     expect(nags).toStrictEqual([]);
@@ -99,7 +100,7 @@ describe('Property name parsing', () => {
   it('should allow dash inside property name', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(scanPropertyOrGroup('X-ABUID:z', 0, nags)).toStrictEqual({
-      name: 'X-ABUID',
+      name: 'X_ABUID',
       end: 7,
     });
     expect(nags).toStrictEqual([]);
@@ -107,7 +108,7 @@ describe('Property name parsing', () => {
   it('should allow digits inside property name', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(scanPropertyOrGroup('X-ABUID9:z', 0, nags)).toStrictEqual({
-      name: 'X-ABUID9',
+      name: 'X_ABUID9',
       end: 8,
     });
     expect(nags).toStrictEqual([]);
@@ -115,7 +116,7 @@ describe('Property name parsing', () => {
   it('should work inside the string', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(scanPropertyOrGroup('-X-ABUID9:z', 1, nags)).toStrictEqual({
-      name: 'X-ABUID9',
+      name: 'X_ABUID9',
       end: 9,
     });
     expect(nags).toStrictEqual([]);
@@ -129,6 +130,11 @@ describe('Property name parsing', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(scanPropertyOrGroup('ABC', 0, nags)).toStrictEqual(null);
     expect(nags).toNagAbout('PROP_NAME_EOL');
+  });
+  it('should complain about empty property names', () => {
+    let nags: Nag<VCardNagAttributes>[] = [];
+    expect(scanPropertyOrGroup(':x', 0, nags)).toStrictEqual(null);
+    expect(nags).toNagAbout('PROP_NAME_EMPTY');
   });
 });
 
@@ -152,7 +158,7 @@ describe('Property/group extraction', () => {
   it('should now also allow properties starting with a dash', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(extractProperty('-ADR;x=y:z', nags)).toStrictEqual({
-      property: '-ADR',
+      property: '_ADR',
       end: 4,
     });
     expect(nags).toStrictEqual([]);
@@ -160,7 +166,7 @@ describe('Property/group extraction', () => {
   it('should allow dash inside property name', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(extractProperty('X-ABUID:z', nags)).toStrictEqual({
-      property: 'X-ABUID',
+      property: 'X_ABUID',
       end: 7,
     });
     expect(nags).toStrictEqual([]);
@@ -168,7 +174,7 @@ describe('Property/group extraction', () => {
   it('should allow digits inside property name', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(extractProperty('X-ABUID9:z', nags)).toStrictEqual({
-      property: 'X-ABUID9',
+      property: 'X_ABUID9',
       end: 8,
     });
     expect(nags).toStrictEqual([]);
@@ -195,7 +201,7 @@ describe('Property/group extraction', () => {
   it('should now also allow dash-starting groups', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(extractProperty('-9.ADR:x', nags)).toStrictEqual({
-      group: '-9',
+      group: '_9',
       property: 'ADR',
       end: 6,
     });
@@ -205,7 +211,7 @@ describe('Property/group extraction', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(extractProperty('9.-ADR:x', nags)).toStrictEqual({
       group: '9',
-      property: '-ADR',
+      property: '_ADR',
       end: 6,
     });
     expect(nags).toStrictEqual([]);
@@ -559,6 +565,7 @@ describe('Multi-string parameter parsing', () => {
   });
 });
 
+        },
 describe('vCard parsing', () => {
   it('should put things together', () => {
     expect(

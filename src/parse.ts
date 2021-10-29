@@ -27,7 +27,7 @@ export type ParsedVCards = {
   vCards?: NonEmptyArray<VCard4>;
   nags?: NonEmptyArray<Nag<undefined>>;
 };
-type PartialVCard = Partial<Omit<VCard4, 'nags'>> & {
+export type PartialVCard = Partial<Omit<VCard4, 'nags'>> & {
   nags: Nag<VCardNagAttributes>[];
   didNotStartWithBEGIN?: boolean;
 };
@@ -295,7 +295,7 @@ export function scanPropertyOrGroup(
         nagVC(nags, 'PROP_NAME_EMPTY', { property: '', line });
         return null;
       } else {
-        return { name: line.substring(start, i).toUpperCase(), end: i };
+        return { name: nameToKey(line.substring(start, i)), end: i };
       }
     }
   }
