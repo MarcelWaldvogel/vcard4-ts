@@ -701,9 +701,57 @@ describe('vCard parsing', () => {
     });
   });
 
-  // it('should work with an exotic vCard', () => {
-  //   expect(parseVCards('BEGIN:VCARD\n', true)).toStrictEqual({
-  //     vCards: [],
-  //   });
-  //  });
+  it('should handle multiple values', () => {
+    expect(
+      parseVCards(
+        "BEGIN:VCARD\r\nVERSION:4.0\r\nFN:Marcel Waldvogel\r\nFN;LANGUAGE=fr:Marcel l'Oiseau de la Forêt\r\nTZ:Europe/Berlin\r\nTZ:Europe/Zurich\r\nEND:VCARD\r\n",
+        true,
+      ),
+    ).toStrictEqual({
+      vCards: [
+        {
+          BEGIN: { value: 'VCARD' },
+          VERSION: { value: '4.0' },
+          FN: [
+            {
+              value: 'Marcel Waldvogel',
+            },
+            {
+              value: "Marcel l'Oiseau de la Forêt",
+              parameters: { LANGUAGE: 'fr' },
+            },
+          ],
+          TZ: [{ value: 'Europe/Berlin' }, { value: 'Europe/Zurich' }],
+          END: { value: 'VCARD' },
+          hasErrors: false,
+        },
+      ],
+    });
+  });
+
+  it('should handle multiple vCards', () => {
+    expect(
+      parseVCards(
+        'BEGIN:VCARD\r\nVERSION:4.0\r\nFN:Marcel Waldvogel\r\nEND:VCARD\r\nBEGIN:VCARD\r\nVERSION:4.0\r\nFN:Jane Doe\r\nEND:VCARD\r\n',
+        true,
+      ),
+    ).toStrictEqual({
+      vCards: [
+        {
+          BEGIN: { value: 'VCARD' },
+          VERSION: { value: '4.0' },
+          FN: [{ value: 'Marcel Waldvogel' }],
+          END: { value: 'VCARD' },
+          hasErrors: false,
+        },
+        {
+          BEGIN: { value: 'VCARD' },
+          VERSION: { value: '4.0' },
+          FN: [{ value: 'Jane Doe' }],
+          END: { value: 'VCARD' },
+          hasErrors: false,
+        },
+      ],
+    });
+  });
 });
