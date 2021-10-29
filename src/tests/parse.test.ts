@@ -866,4 +866,36 @@ describe('vCard parsing', () => {
       ],
     });
   });
+  it('should nag about commas in single-string parameter values', () => {
+    expect(
+      parseVCards(
+        'BEGIN:VCARD\r\nVERSION:4.0\r\nFN;LANGUAGE=de,en:Marcel Waldvogel\r\nEND:VCARD',
+        true,
+      ),
+    ).toStrictEqual({
+      vCards: [
+        {
+          BEGIN: { value: 'VCARD' },
+          VERSION: { value: '4.0' },
+          FN: [
+            { parameters: { LANGUAGE: 'de,en' }, value: 'Marcel Waldvogel' },
+          ],
+          END: { value: 'VCARD' },
+          hasErrors: false,
+          nags: [
+            {
+              key: 'PARAM_UNESCAPED_COMMA',
+              description: 'Unescaped comma in parameter value',
+              isError: false,
+              attributes: {
+                line: 'FN;LANGUAGE=de,en:Marcel Wald…',
+                parameter: 'LANGUAGE',
+                property: 'FN',
+              },
+            },
+          ],
+        },
+      ],
+    });
+  });
 });
