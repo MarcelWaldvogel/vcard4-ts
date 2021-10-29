@@ -4,7 +4,6 @@ import { scanSingleValue } from './scan';
 import { isPropertyChar, nameToKey } from './utils';
 import {
   atLeastOnceProperties,
-  ExactlyOnceProperties,
   exactlyOnceProperties,
   isAtLeastOnceProperty,
   isAtMostOnceProperty,
@@ -13,7 +12,6 @@ import {
   isKnowProperty,
   knownParameters,
   knownProperties,
-  KnownPropertyNames,
   SingleVCardProperty,
   VCard4,
   VCardParameters,

@@ -687,6 +687,20 @@ describe('vCard parsing', () => {
     });
   });
 
+  it('should ignore bogus cards, if told so', () => {
+    expect(
+      parseVCards('BEGIN:VCALENDAR\r\nVERSION:5.0\r\nFN:\r\n \r\n', false),
+    ).toStrictEqual({
+      nags: [
+        {
+          key: 'VCARD_BAD_TYPE',
+          description: 'Not a vCard',
+          isError: true,
+        },
+      ],
+    });
+  });
+
   // it('should work with an exotic vCard', () => {
   //   expect(parseVCards('BEGIN:VCARD\n', true)).toStrictEqual({
   //     vCards: [],

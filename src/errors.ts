@@ -4,7 +4,7 @@ export type Nag<Attributes> = {
   key: string;
   description: string;
   isError: boolean;
-  attributes: Attributes;
+  attributes?: Attributes;
 };
 
 /**
@@ -18,12 +18,15 @@ export function nag<Attributes>(
   key: errorKeys,
   attributes?: Attributes,
 ) {
-  nags.push({
+  let data: Nag<Attributes> = {
     key,
     description: errors[key][0],
     isError: errors[key][1],
-    attributes,
-  });
+  };
+  if (attributes) {
+    data.attributes = attributes;
+  }
+  nags.push(data);
 }
 
 export type VCardNagAttributes = {
