@@ -898,10 +898,10 @@ describe('vCard parsing', () => {
       ],
     });
   });
-  it('should nag about unclosed parameter quotes', () => {
+  it('should nag about unclosed parameter quotes in multi-strings', () => {
     expect(
       parseVCards(
-        'BEGIN:VCARD\r\nVERSION:4.0\r\nFN;LANGUAGE=,:Marcel Waldvogel\r\nUID;LANGUAGE="de:123\r\nEND:VCARD',
+        'BEGIN:VCARD\r\nVERSION:4.0\r\nFN:Marcel Waldvogel\r\nUID;TYPE="de:123\r\nEND:VCARD',
         true,
       ),
     ).toStrictEqual({
@@ -909,28 +909,99 @@ describe('vCard parsing', () => {
         {
           BEGIN: { value: 'VCARD' },
           VERSION: { value: '4.0' },
-          FN: [{ parameters: { LANGUAGE: ',' }, value: 'Marcel Waldvogel' }],
+          FN: [{ value: 'Marcel Waldvogel' }],
           END: { value: 'VCARD' },
           hasErrors: true,
           nags: [
-            {
-              key: 'PARAM_UNESCAPED_COMMA',
-              description: 'Unescaped comma in parameter value',
-              isError: false,
-              attributes: {
-                line: 'FN;LANGUAGE=,:Marcel Waldvogel',
-                parameter: 'LANGUAGE',
-                property: 'FN',
-              },
-            },
             {
               key: 'PARAM_UNCLOSED_QUOTE',
               description: 'Quoted parameter missing closing quote',
               isError: true,
               attributes: {
-                line: 'UID;LANGUAGE="de:123',
-                parameter: 'LANGUAGE',
+                line: 'UID;TYPE="de:123',
+                parameter: 'TYPE',
                 property: 'UID',
+              },
+            },
+          ],
+        },
+      ],
+    });
+  });
+  it('should handle number parameters', () => {
+    expect(
+      parseVCards(
+        'BEGIN:VCARD\r\nVERSION:4.0\r\nFN:Marcel Waldvogel\r\nEMAIL;PREF=100:a@b.c\r\nEND:VCARD',
+        true,
+      ),
+    ).toStrictEqual({
+      vCards: [
+        {
+          BEGIN: { value: 'VCARD' },
+          VERSION: { value: '4.0' },
+          FN: [{ value: 'Marcel Waldvogel' }],
+          EMAIL: [{ parameters: { PREF: 100 }, value: 'a@b.c' }],
+          END: { value: 'VCARD' },
+          hasErrors: false,
+        },
+      ],
+    });
+  });
+  it('should nag about invalid number parameters', () => {
+    expect(
+      parseVCards(
+        'BEGIN:VCARD\r\nVERSION:4.0\r\nFN:Marcel Waldvogel\r\nEMAIL;PREF=yes:a@b.c\r\nEND:VCARD',
+        true,
+      ),
+    ).toStrictEqual({
+      vCards: [
+        {
+          BEGIN: { value: 'VCARD' },
+          VERSION: { value: '4.0' },
+          FN: [{ value: 'Marcel Waldvogel' }],
+          EMAIL: [{ value: 'a@b.c' }],
+          END: { value: 'VCARD' },
+          hasErrors: true,
+          nags: [
+            {
+              key: 'PARAM_INVALID_NUMBER',
+              description: 'Invalid number',
+              isError: true,
+              attributes: {
+                line: 'EMAIL;PREF=yes:a@b.c',
+                parameter: 'PREF',
+                property: 'EMAIL',
+              },
+            },
+          ],
+        },
+      ],
+    });
+  });
+  it('should nag about quoted multiple strings', () => {
+    expect(
+      parseVCards(
+        'BEGIN:VCARD\r\nVERSION:4.0\r\nFN:Marcel Waldvogel\r\nEMAIL;PREF=yes:a@b.c\r\nEND:VCARD',
+        true,
+      ),
+    ).toStrictEqual({
+      vCards: [
+        {
+          BEGIN: { value: 'VCARD' },
+          VERSION: { value: '4.0' },
+          FN: [{ value: 'Marcel Waldvogel' }],
+          EMAIL: [{ value: 'a@b.c' }],
+          END: { value: 'VCARD' },
+          hasErrors: true,
+          nags: [
+            {
+              key: 'PARAM_INVALID_NUMBER',
+              description: 'Invalid number',
+              isError: true,
+              attributes: {
+                line: 'EMAIL;PREF=yes:a@b.c',
+                parameter: 'PREF',
+                property: 'EMAIL',
               },
             },
           ],

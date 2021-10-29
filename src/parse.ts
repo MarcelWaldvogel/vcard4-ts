@@ -455,6 +455,7 @@ export function scanParamValue(
     if (result.value.length === 1) {
       return { value: result.value[0], end: result.end };
     } else {
+      // Should not happen anymore since the support of `singleValue`
       nagVC(nags, 'PARAM_NOT_SINGLE', { property, parameter, line });
       return null;
     }
