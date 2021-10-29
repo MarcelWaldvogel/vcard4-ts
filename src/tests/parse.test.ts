@@ -844,7 +844,7 @@ describe('vCard parsing', () => {
   it('should handle unrecognized properties', () => {
     expect(
       parseVCards(
-        'BEGIN:VCARD\r\nVERSION:4.0\r\nFN;SORT-AS=MW:Marcel Waldvogel\r\nX-ABUID:999\r\nEND:VCARD',
+        'BEGIN:VCARD\r\nVERSION:4.0\r\nFN;SORT-AS=MW:Marcel Waldvogel\r\nX-ABUID:999\r\nX-TEST:1\r\nX-TEST;LANGUAGE=de:2\r\nEND:VCARD',
         true,
       ),
     ).toStrictEqual({
@@ -854,7 +854,13 @@ describe('vCard parsing', () => {
           VERSION: { value: '4.0' },
           FN: [{ parameters: { SORT_AS: ['MW'] }, value: 'Marcel Waldvogel' }],
           END: { value: 'VCARD' },
-          unrecognized: { X_ABUID: [{ value: '999' }] },
+          unrecognized: {
+            X_ABUID: [{ value: '999' }],
+            X_TEST: [
+              { value: '1' },
+              { parameters: { LANGUAGE: 'de' }, value: '2' },
+            ],
+          },
           hasErrors: false,
         },
       ],
