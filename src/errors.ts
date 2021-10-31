@@ -45,7 +45,7 @@ export function nagVC(
   key: errorKeys,
   attributes: VCardNagAttributes,
 ) {
-  if ('line' in attributes) {
+  if (attributes.line) {
     // Shorten the potentially homunguous unwrapped lines (e.g. PHOTO)
     attributes.line = shorten(attributes.line);
   }
