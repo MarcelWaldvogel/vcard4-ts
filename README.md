@@ -13,7 +13,7 @@
   - The data structure definition, created from RFC 6350, contains instructions for the parser
 
 - The returned data structure is easy to use
-  - As few decisions to be made on the fly. E.g., no need to check whether there is a single or multiple values: if something can occur multiple times, the item is always in an array
+  - The decisions to be made by the calling code should be as few and as simple as possible. Everything that can be delegated to the IDE (while writing your code) and TypeScript compile time should be handled there. E.g., no need to check whether there is a single or multiple values: if something can occur multiple times, the item is always in an array.
 
 ## Installation
 
@@ -55,7 +55,7 @@ This is to make testing for presence easier without having to pre-fill all possi
 
 ## Related work
 
-- Searching for `vcard` on [NPM](https://npmjs.org) results in mostly vCard generators or converters to/other formats. Notable exceptions:
+- Searching for `vcard` on [NPM](https://npmjs.org) results in mostly vCard generators or converters to/from other formats. Notable exceptions:
   - [vcard4](https://github.com/kelseykm/vcard4) is a vCard 4.0 generator which also includes parsing capabilities.  
     Trying to create type annotations for `vcard4` turned out to be hard. The resulting types for the parser would be so lax as not to help when writing a program processing it further, requiring runtime type verification in the application. Also, their design decision to transform arrays with a single member into requires every access to verify the field's structure. Furthermore, it has some (easily fixable) issues with its RFC 6350 compliance (lack of support for multiple vCards in a single file, not supporting lines folded with tabs, lack of property group support, or incomplete unescaping rules) and the IETF's general [Robustness principle](https://en.wikipedia.org/wiki/Robustness_principle) (i.e., not accepting bare newlines).
   - [vdata-parser](https://github.com/floriangosse/vdata-parser) is a generic vCard/vCalendar parser, handling multiple cards in a single file.  
