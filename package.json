@@ -1,6 +1,6 @@
 {
   "name": "vcard4-ts",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A vCard v4 parser with type safety first",
   "type": "module",
   "main": "./dist/index.js",
