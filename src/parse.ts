@@ -563,7 +563,7 @@ export function parseParameters(
           }
           break;
         default:
-          // Skip over this unknown type
+          // Skip over this unknown type; should never happen
           const retval = scanParamValue(
             line,
             index,
