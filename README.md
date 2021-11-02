@@ -144,6 +144,11 @@ More importantly, this relieves calling code from performing case distinctions o
 
 Array thickening results in less code for the caller, which often also results in less code coverage, i.e., the uncommon case is not tested. In other words, array thickening turns the general case (whether common or uncommon) into the only case.
 
+## API
+
+- `parseVCards(vcf: string, keepDefective?: boolean = false): ParsedVCards`: Parse a string into possibly multiple VCards. Details below.
+- `sortByPREF<T extends Partial<VCard4>>(vcard: T)`: Sort properties which exist multiple times by their preference parameter (1…100; the ones without `PREF` are sorted last).
+
 ## Reference
 
 ### Property/parameter names
