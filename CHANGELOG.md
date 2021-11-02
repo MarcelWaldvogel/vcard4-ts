@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+# 0.1.3+ - [Unpublished]
+
+## Added
+
+- Documentation: Coverage badge
+
+## Fixed
+
+- Documentation still contained a now outdated draft text block
+
+## Changed
+
 # 0.1.3 - 2021-11-02
 
 ## Added

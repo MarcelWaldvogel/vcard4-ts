@@ -130,16 +130,6 @@ The prime design goal is to avoid mistakes in the code and enable calling code t
 
 [Don't Repeat Yourself](https://en.wikipedia.org/wiki/Don%27t_repeat_yourself) was a basic design principle while developing the module. The description of the data structure is centralized. The goal was to have only a single authoritative source of type information, from which both compile-time type information and runtime parsing instructions would be derived. As TypeScript transpilation output no longer contains the type information, it was necessary to jump through hoops. (Luckily, [Colin McDonnell's Zod](https://colinhacks.com/essays/zod) was a great resource for educating about hoop-jumping.)
 
-1. DRY
-2. Designed for type safety (library)
-   - Data structure
-   - Processing
-3. Clear for consumer of the data structure
-   - No flatten-single-element-array optimizations
-     - → Recipient needs to check always
-     - More code for user
-     - Rare case not tested
-
 ### Parse, don't validate
 
 The idea of [parsing instead of validation](https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/) was introduced by Alexis King, for the Haskell ecosystem. The gist of it: Directly parse the source data into the required (type-safe) format, instead of first parsing it into an (essentially) untyped format and then validating it to be of the right type. This assures that type safety starts earlier and is guaranteed to be consistent throughout the entire codebase.
