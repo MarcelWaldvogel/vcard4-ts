@@ -234,28 +234,28 @@ describe('Property/group extraction', () => {
   });
 });
 
-describe('Unrecognized parameter parsing', () => {
-  it('should handle unrecognized key/values', () => {
+describe('x parameter parsing', () => {
+  it('should handle x key/values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(parseParameters('x;KEY=value:x', 1, nags, 'X')).toStrictEqual({
-      parameters: { unrecognized: { KEY: ['value'] } },
+      parameters: { x: { KEY: ['value'] } },
       end: 11,
     });
     expect(nags).toStrictEqual([]);
   });
-  it('should handle raw unrecognized key/values', () => {
+  it('should handle raw x key/values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(parseParameters('x;KEY=value,v2:x', 1, nags, 'X')).toStrictEqual({
-      parameters: { unrecognized: { KEY: ['value,v2'] } },
+      parameters: { x: { KEY: ['value,v2'] } },
       end: 14,
     });
     expect(nags).toStrictEqual([]);
   });
-  it('should handle duplicate unrecognized key/values', () => {
+  it('should handle duplicate x key/values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(parseParameters('x;KEY=value;KEY=v2:x', 1, nags, 'X')).toStrictEqual(
       {
-        parameters: { unrecognized: { KEY: ['value', 'v2'] } },
+        parameters: { x: { KEY: ['value', 'v2'] } },
         end: 18,
       },
     );
@@ -264,7 +264,7 @@ describe('Unrecognized parameter parsing', () => {
   it('should upcase keys', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(parseParameters('x;key=value:x', 1, nags, 'X')).toStrictEqual({
-      parameters: { unrecognized: { KEY: ['value'] } },
+      parameters: { x: { KEY: ['value'] } },
       end: 11,
     });
     expect(nags).toStrictEqual([]);
@@ -272,7 +272,7 @@ describe('Unrecognized parameter parsing', () => {
   it('should handle empty values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(parseParameters('x;K1=;K2=:x', 1, nags, 'X')).toStrictEqual({
-      parameters: { unrecognized: { K1: [''], K2: [''] } },
+      parameters: { x: { K1: [''], K2: [''] } },
       end: 9,
     });
     expect(nags).toStrictEqual([]);
@@ -841,7 +841,7 @@ describe('vCard parsing', () => {
       ],
     });
   });
-  it('should handle unrecognized properties', () => {
+  it('should handle x properties', () => {
     expect(
       parseVCards(
         'BEGIN:VCARD\r\nVERSION:4.0\r\nFN;SORT-AS=MW:Marcel Waldvogel\r\nX-ABUID:999\r\nX-TEST:1\r\nX-TEST;LANGUAGE=de:2\r\nEND:VCARD',
@@ -854,7 +854,7 @@ describe('vCard parsing', () => {
           VERSION: { value: '4.0' },
           FN: [{ parameters: { SORT_AS: ['MW'] }, value: 'Marcel Waldvogel' }],
           END: { value: 'VCARD' },
-          unrecognized: {
+          x: {
             X_ABUID: [{ value: '999' }],
             X_TEST: [
               { value: '1' },

@@ -43,8 +43,8 @@ for (const card of cards.vCards) {
     // And we still could have multiple addresses (e.g., work and home). We'll just print the first.
     console.log('Living in: ' + card.ADR[0].value.locality[0]);
   }
-  if (card.unrecognized) {
-    for (const [k, v] of Object.entries(card.unrecognized)) {
+  if (card.x) {
+    for (const [k, v] of Object.entries(card.x)) {
       console.log('Non-RFC6350 property ' + k + ', with ' + JSON.stringify(v));
     }
   }

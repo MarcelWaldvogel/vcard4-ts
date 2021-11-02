@@ -97,8 +97,8 @@ for (const card of cards.vCards) {
     // And we still could have multiple addresses (e.g., work and home). We'll just print the first.
     console.log('Living in: ' + card.ADR[0].value.locality[0]);
   }
-  if (card.unrecognized) {
-    for (const [k, v] of Object.entries(card.unrecognized)) {
+  if (card.x) {
+    for (const [k, v] of Object.entries(card.x)) {
       console.log('Non-RFC6350 property ' + k + ', with ' + JSON.stringify(v));
     }
   }
@@ -179,12 +179,12 @@ Properties can have [(mostly optional) parameters](https://datatracker.ietf.org/
 
 Any property or parameter whose type is not explicitely given in RFC6350, including those prefixed by `X-`, are not included at the same level as the rest of the properties. One reason is that [TypeScript does not really allow default types on object properties](https://basarat.gitbook.io/typescript/type-system/index-signatures#excluding-certain-properties-from-the-index-signature) and therefore, [nested index signatures](https://basarat.gitbook.io/typescript/type-system/index-signatures#design-pattern-nested-index-signature) are recommended for this.
 
-Instead, non-RFC6350 properties and parameters are put into an `unrecognized` object property. The actual value will be a plain, unprocessed `string`. If it has more structure, you need to extract it yourselves, e.g. using
+Instead, non-RFC6350 properties and parameters are put into an `x` object property. The actual value will be a plain, unprocessed `string`. If it has more structure, you need to extract it yourselves, e.g. using
 
 - `scan1DValue()`, which unescapes and splits at the specified `splitChar` (`,`, as used for `PID` or `TYPE` parameters; or `;`, as used for the `GENDER` value); or
 - `scan2DValue()`, which splits into a `string[][]` at `;` _and_ `,` (used for `ADR` and `N` values).
 
-For example, the `string` value of an `X-ABUID` property in card `card` would be available as `card.unrecognized.X_ABUID.value`.
+For example, the `string` value of an `X-ABUID` property in card `card` would be available as `card.x.X_ABUID.value`.
 
 ### Handling errors
 

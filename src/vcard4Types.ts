@@ -33,7 +33,7 @@ export const isKnownParameter = keyTypeGuard(knownParameters);
 export type VCardParameters = Flatten<
   {
     [k in KnownParameterNames]?: TypeOf<typeof knownParameters[k]>;
-  } & { unrecognized?: Record<string, NonEmptyArray<string>> }
+  } & { x?: Record<string, NonEmptyArray<string>> }
 >;
 
 // VCard4 properties with runtime introspection capability
@@ -163,7 +163,7 @@ export type VCard4 = Flatten<
     Partial<VCardSingles<AtMostOnceProperties>> &
     VCardMultiples<AtLeastOnceProperties> &
     Partial<VCardMultiples<AnyCardinalityProperties>> & {
-      unrecognized?: Record<string, NonEmptyArray<SingleVCardProperty<string>>>;
+      x?: Record<string, NonEmptyArray<SingleVCardProperty<string>>>;
       nags?: NonEmptyArray<Nag<VCardNagAttributes>>;
       hasErrors: boolean;
     }

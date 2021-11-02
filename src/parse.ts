@@ -189,13 +189,13 @@ function ensureCardinalities(
       }
     }
   }
-  for (const [k, v] of Object.entries(partialVCard.unrecognized ?? {})) {
+  for (const [k, v] of Object.entries(partialVCard.x ?? {})) {
     for (const i in v) {
       if (
         'parameters' in v[i] &&
         (!v[i].parameters || Object.keys(v[i].parameters).length === 0)
       ) {
-        delete partialVCard.unrecognized[k][i].parameters;
+        delete partialVCard.x[k][i].parameters;
       }
     }
   }
@@ -275,17 +275,15 @@ export function parseLine(vCardInProgress: PartialVCard, line: string) {
       }
     }
   } else {
-    // Add unrecognized property
-    vCardInProgress.unrecognized ??= {};
-    if (property in vCardInProgress.unrecognized) {
-      vCardInProgress.unrecognized[property].push({
+    // Add x property
+    vCardInProgress.x ??= {};
+    if (property in vCardInProgress.x) {
+      vCardInProgress.x[property].push({
         parameters,
         value: rawValue,
       });
     } else {
-      vCardInProgress.unrecognized[property] = [
-        { parameters, value: rawValue },
-      ];
+      vCardInProgress.x[property] = [{ parameters, value: rawValue }];
     }
   }
 }
@@ -583,17 +581,17 @@ export function parseParameters(
           }
       }
     } else {
-      parameters.unrecognized ??= {};
+      parameters.x ??= {};
       // scanParamRawValue, unlike scanParamValue(s), starts *after* the equals sign
       const { value, end } = scanParamRawValue(line, index + 1);
-      if (parameterName in parameters.unrecognized) {
+      if (parameterName in parameters.x) {
         // This is inconsistent:
         // `KEY=value;KEY=v2` results in `{KEY: ['value', 'v2']}`, whereas
         // `KEY=value,v2` results in `{KEY: ['value,v2']}`.
         // However, this is the only way not to make assumptions about the value type.
-        parameters.unrecognized[parameterName].push(value);
+        parameters.x[parameterName].push(value);
       } else {
-        parameters.unrecognized[parameterName] = [value];
+        parameters.x[parameterName] = [value];
       }
       index = end;
     }

@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Changed
 
+- Breaking change: Non-RFC6350 properties and parameters moved from `unrecognized` to `x`, as those should mostly have `X-` names.
+
 # 0.1.3 - 2021-11-02
 
 ## Added
