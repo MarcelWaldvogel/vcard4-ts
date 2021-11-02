@@ -82,7 +82,7 @@ export const knownProperties = {
   CALURI: StringType,
 };
 export type KnownPropertyNames = keyof typeof knownProperties;
-export const isKnowProperty = keyTypeGuard(knownProperties);
+export const isKnownProperty = keyTypeGuard(knownProperties);
 
 // "1" cardinality properties from RFC 6350
 // Values are what is expected

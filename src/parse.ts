@@ -9,7 +9,7 @@ import {
   isAtMostOnceProperty,
   isExactlyOnceProperty,
   isKnownParameter,
-  isKnowProperty,
+  isKnownProperty,
   knownParameters,
   knownProperties,
   SingleVCardProperty,
@@ -167,7 +167,7 @@ function ensureCardinalities(
   // Clean: Remove undefined parameters
   for (const [key] of Object.entries(partialVCard)) {
     const k = key as keyof typeof partialVCard;
-    if (isKnowProperty(k)) {
+    if (isKnownProperty(k)) {
       if (isAtMostOnceProperty(k) || isExactlyOnceProperty(k)) {
         const v: SingleVCardProperty<any> = partialVCard[k];
         if (
@@ -245,7 +245,7 @@ export function parseLine(vCardInProgress: PartialVCard, line: string) {
   }
   const rawValue = line.substring(parameterInfo.end + 1);
 
-  if (isKnowProperty(property)) {
+  if (isKnownProperty(property)) {
     // Obtain the value parsed into the right type.
     // Using the property's `<Type>parse()` ensures that we have the proper type,
     // however, to convince the compiler of the same, an 8-way condition would

@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Breaking change: Non-RFC6350 properties and parameters moved from `unrecognized` to `x`, as those should mostly have `X-` names
 - Updated documentation to reflect [`vcard4` module](https://github.com/kelseykm/vcard4) updates
+- Fixed ìsKnownProperty()` spelling
 
 # 0.1.3 - 2021-11-02
 
