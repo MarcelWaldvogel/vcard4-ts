@@ -26,7 +26,7 @@
     "esm"
   ],
   "scripts": {
-    "test": "yarn jest && yarn make-coverage-badge",
+    "test": "yarn jest && yarn make-coverage-badge --output-path=./assets/coverage-badge.svg",
     "test-watch": "jest --watch",
     "vscode-jest-tests": "jest",
     "build": "tsc",
