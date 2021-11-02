@@ -2,6 +2,8 @@
 
 # vcard4-ts — A vCard 4.0 library with type safety first
 
+![Coverage badge](./assets/coverage-badge.svg)
+
 `vcard4-ts` was designed with the following goals:
 
 - [RFC 6350](https://datatracker.ietf.org/doc/html/rfc6350) compliant
