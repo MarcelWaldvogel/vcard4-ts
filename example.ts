@@ -15,13 +15,9 @@ if (cards.nags) {
   // Those cards can be obtained by passing `keepDefective: true` to `parseVCards()`.
   for (const nag of cards.nags) {
     if (nag.isError) {
-      console.error(
-        `Error ${nag.key} (${nag.description}) with ${nag.attributes}`,
-      );
+      console.error(`${nag.key} (${nag.description}): ${nag.attributes}`);
     } else {
-      console.warn(
-        `Warning ${nag.key} (${nag.description}) with ${nag.attributes}`,
-      );
+      console.warn(`${nag.key} (${nag.description}): ${nag.attributes}`);
     }
   }
 }
@@ -55,13 +51,9 @@ for (const card of cards.vCards) {
     );
     for (const nag of card.nags) {
       if (nag.isError) {
-        console.error(
-          `Error ${nag.key} (${nag.description}) at ${nag.attributes}`,
-        );
+        console.error(`Global ${nag.key} (${nag.description})`);
       } else {
-        console.warn(
-          `Warning ${nag.key} (${nag.description}) at ${nag.attributes}`,
-        );
+        console.warn(`Global ${nag.key} (${nag.description})`);
       }
     }
   }
