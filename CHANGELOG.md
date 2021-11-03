@@ -2,8 +2,8 @@
 
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/)
-and this project adheres to [Semantic Versioning](https://semver.org/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/) and this project
+adheres to [Semantic Versioning](https://semver.org/).
 
 # 0.2.0 - 2021-11-02
 
@@ -18,8 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Changed
 
-- Breaking change: Non-RFC6350 properties and parameters moved from `unrecognized` to `x`, as those should mostly have `X-` names
-- Updated documentation to reflect [`vcard4` module](https://github.com/kelseykm/vcard4) updates
+- Breaking change: Non-RFC6350 properties and parameters moved from `unrecognized` to `x`,
+  as those should mostly have `X-` names
+- Updated documentation to reflect [`vcard4` module](https://github.com/kelseykm/vcard4)
+  updates
 - Fixed ìsKnownProperty()` spelling
 
 # 0.1.3 - 2021-11-02

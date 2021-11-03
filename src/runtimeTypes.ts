@@ -75,12 +75,12 @@ export const StringType = new RuntimeTypeAnnotation<string>(
   'string',
   (rawValue, errorCallback) => scanSingleValue(rawValue, errorCallback),
 );
-export const NonEmptyStringArrayType = new RuntimeTypeAnnotation<
-  NonEmptyArray<string>
->('string[+]', (rawValue) => scan1DValue(rawValue, ','));
-export const NumberType = new RuntimeTypeAnnotation<number>(
-  'number',
-  (rawValue) => parseInt(rawValue, 10),
+export const NonEmptyStringArrayType = new RuntimeTypeAnnotation<NonEmptyArray<string>>(
+  'string[+]',
+  (rawValue) => scan1DValue(rawValue, ','),
+);
+export const NumberType = new RuntimeTypeAnnotation<number>('number', (rawValue) =>
+  parseInt(rawValue, 10),
 );
 export const ADRType = new RuntimeTypeAnnotation<{
   postOfficeBox?: NonEmptyArray<string>;
@@ -117,13 +117,8 @@ export const NType = new RuntimeTypeAnnotation<{
   honorificPrefixes: NonEmptyArray<string>;
   honorificSuffixes: NonEmptyArray<string>;
 }>('N', (rawValue) => {
-  const [
-    familyNames,
-    givenNames,
-    additionalNames,
-    honorificPrefixes,
-    honorificSuffixes,
-  ] = scan2DValue(rawValue);
+  const [familyNames, givenNames, additionalNames, honorificPrefixes, honorificSuffixes] =
+    scan2DValue(rawValue);
   return {
     familyNames,
     givenNames,

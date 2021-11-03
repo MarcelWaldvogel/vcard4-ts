@@ -18,14 +18,12 @@ expect.extend({
       received[0].key === error;
     if (pass) {
       return {
-        message: () =>
-          `expected ${JSON.stringify(received)} not to nag about ${error}`,
+        message: () => `expected ${JSON.stringify(received)} not to nag about ${error}`,
         pass: true,
       };
     } else {
       return {
-        message: () =>
-          `expected ${JSON.stringify(received)} to nag about ${error}`,
+        message: () => `expected ${JSON.stringify(received)} to nag about ${error}`,
         pass: false,
       };
     }
@@ -51,14 +49,12 @@ expect.extend({
     }
     if (pass) {
       return {
-        message: () =>
-          `expected ${JSON.stringify(received)} not to nag about ${errors}`,
+        message: () => `expected ${JSON.stringify(received)} not to nag about ${errors}`,
         pass: true,
       };
     } else {
       return {
-        message: () =>
-          `expected ${JSON.stringify(received)} to nag about ${errors}`,
+        message: () => `expected ${JSON.stringify(received)} to nag about ${errors}`,
         pass: false,
       };
     }
@@ -253,12 +249,10 @@ describe('x parameter parsing', () => {
   });
   it('should handle duplicate x key/values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(parseParameters('x;KEY=value;KEY=v2:x', 1, nags, 'X')).toStrictEqual(
-      {
-        parameters: { x: { KEY: ['value', 'v2'] } },
-        end: 18,
-      },
-    );
+    expect(parseParameters('x;KEY=value;KEY=v2:x', 1, nags, 'X')).toStrictEqual({
+      parameters: { x: { KEY: ['value', 'v2'] } },
+      end: 18,
+    });
     expect(nags).toStrictEqual([]);
   });
   it('should upcase keys', () => {
@@ -299,9 +293,7 @@ describe('String parameter parsing', () => {
   });
   it('should complain on duplicate keys', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(
-      parseParameters('x;language=de;LANGUAGE=en:x', 1, nags, 'X'),
-    ).toStrictEqual({
+    expect(parseParameters('x;language=de;LANGUAGE=en:x', 1, nags, 'X')).toStrictEqual({
       parameters: { LANGUAGE: 'en' },
       end: 25,
     });
@@ -317,39 +309,31 @@ describe('String parameter parsing', () => {
   });
   it('should handle newline escapes', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(parseParameters('x;LANGUAGE=v1\\nv2:x', 1, nags, 'X')).toStrictEqual(
-      {
-        parameters: { LANGUAGE: 'v1\nv2' },
-        end: 17,
-      },
-    );
+    expect(parseParameters('x;LANGUAGE=v1\\nv2:x', 1, nags, 'X')).toStrictEqual({
+      parameters: { LANGUAGE: 'v1\nv2' },
+      end: 17,
+    });
     expect(nags).toStrictEqual([]);
   });
   it('should handle escaped commas', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(parseParameters('x;LANGUAGE=v1\\,v2:x', 1, nags, 'X')).toStrictEqual(
-      {
-        parameters: { LANGUAGE: 'v1,v2' },
-        end: 17,
-      },
-    );
+    expect(parseParameters('x;LANGUAGE=v1\\,v2:x', 1, nags, 'X')).toStrictEqual({
+      parameters: { LANGUAGE: 'v1,v2' },
+      end: 17,
+    });
     expect(nags).toStrictEqual([]);
   });
   it('should handle escaped semicolons', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(parseParameters('x;LANGUAGE=v1\\;v2:x', 1, nags, 'X')).toStrictEqual(
-      {
-        parameters: { LANGUAGE: 'v1;v2' },
-        end: 17,
-      },
-    );
+    expect(parseParameters('x;LANGUAGE=v1\\;v2:x', 1, nags, 'X')).toStrictEqual({
+      parameters: { LANGUAGE: 'v1;v2' },
+      end: 17,
+    });
     expect(nags).toStrictEqual([]);
   });
   it('should handle escaped backslashes', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(
-      parseParameters('x;LANGUAGE=v1\\\\v2:x', 1, nags, 'X'),
-    ).toStrictEqual({
+    expect(parseParameters('x;LANGUAGE=v1\\\\v2:x', 1, nags, 'X')).toStrictEqual({
       parameters: { LANGUAGE: 'v1\\v2' },
       end: 17,
     });
@@ -357,19 +341,15 @@ describe('String parameter parsing', () => {
   });
   it('should handle unnecessarily escaped other chars', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(parseParameters('x;LANGUAGE=v1\\+v2:x', 1, nags, 'X')).toStrictEqual(
-      {
-        parameters: { LANGUAGE: 'v1+v2' },
-        end: 17,
-      },
-    );
+    expect(parseParameters('x;LANGUAGE=v1\\+v2:x', 1, nags, 'X')).toStrictEqual({
+      parameters: { LANGUAGE: 'v1+v2' },
+      end: 17,
+    });
     expect(nags).toStrictEqual([]);
   });
   it('should handle (and detect) unescaped commas after backslashes', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(
-      parseParameters('x;LANGUAGE=v1\\\\,v2:x', 1, nags, 'X'),
-    ).toStrictEqual({
+    expect(parseParameters('x;LANGUAGE=v1\\\\,v2:x', 1, nags, 'X')).toStrictEqual({
       parameters: { LANGUAGE: 'v1\\,v2' },
       end: 18,
     });
@@ -385,9 +365,7 @@ describe('String parameter parsing', () => {
   });
   it('should handle special chars in quoted values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(
-      parseParameters('x;LANGUAGE="a,b;c:d":x', 1, nags, 'X'),
-    ).toStrictEqual({
+    expect(parseParameters('x;LANGUAGE="a,b;c:d":x', 1, nags, 'X')).toStrictEqual({
       parameters: { LANGUAGE: 'a,b;c:d' },
       end: 20,
     });
@@ -395,9 +373,7 @@ describe('String parameter parsing', () => {
   });
   it('should handle newlines in quoted values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(
-      parseParameters('x;LANGUAGE="A\\nB\\\\nC":x', 1, nags, 'X'),
-    ).toStrictEqual({
+    expect(parseParameters('x;LANGUAGE="A\\nB\\\\nC":x', 1, nags, 'X')).toStrictEqual({
       parameters: { LANGUAGE: 'A\nB\\nC' },
       end: 21,
     });
@@ -405,9 +381,7 @@ describe('String parameter parsing', () => {
   });
   it('should ignore most other backslashes in quoted values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(
-      parseParameters('x;LANGUAGE="a\\,b;c:d\\":x', 1, nags, 'X'),
-    ).toStrictEqual({
+    expect(parseParameters('x;LANGUAGE="a\\,b;c:d\\":x', 1, nags, 'X')).toStrictEqual({
       parameters: { LANGUAGE: 'a,b;c:d' },
       end: 22,
     });
@@ -426,9 +400,7 @@ describe('Multi-string parameter parsing', () => {
   });
   it('should handle multiple keys', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(
-      parseParameters('x;LANGUAGE=de;GEO=here:x', 1, nags, 'X'),
-    ).toStrictEqual({
+    expect(parseParameters('x;LANGUAGE=de;GEO=here:x', 1, nags, 'X')).toStrictEqual({
       parameters: { LANGUAGE: 'de', GEO: 'here' },
       end: 22,
     });
@@ -436,9 +408,7 @@ describe('Multi-string parameter parsing', () => {
   });
   it('should handle multiple keys and values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(
-      parseParameters('x;TYPE=v1,v2;TYPE=v3,v4:x', 1, nags, 'X'),
-    ).toStrictEqual({
+    expect(parseParameters('x;TYPE=v1,v2;TYPE=v3,v4:x', 1, nags, 'X')).toStrictEqual({
       parameters: { TYPE: ['v1', 'v2', 'v3', 'v4'] },
       end: 23,
     });
@@ -526,9 +496,7 @@ describe('Multi-string parameter parsing', () => {
   });
   it('should handle newlines in quoted values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(
-      parseParameters('x;TYPE="A\\nB\\\\nC":x', 1, nags, 'X'),
-    ).toStrictEqual({
+    expect(parseParameters('x;TYPE="A\\nB\\\\nC":x', 1, nags, 'X')).toStrictEqual({
       parameters: { TYPE: ['A\nB\\nC'] },
       end: 17,
     });
@@ -536,9 +504,7 @@ describe('Multi-string parameter parsing', () => {
   });
   it('should ignore most other backslashes in quoted values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(
-      parseParameters('x;TYPE="a\\,b;c:d\\":x', 1, nags, 'X'),
-    ).toStrictEqual({
+    expect(parseParameters('x;TYPE="a\\,b;c:d\\":x', 1, nags, 'X')).toStrictEqual({
       parameters: { TYPE: ['a,b;c:d'] },
       end: 18,
     });
@@ -546,9 +512,7 @@ describe('Multi-string parameter parsing', () => {
   });
   it('should handle multiple quoted values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(
-      parseParameters('x;TYPE="a b c","d e f":x', 1, nags, 'X'),
-    ).toStrictEqual({
+    expect(parseParameters('x;TYPE="a b c","d e f":x', 1, nags, 'X')).toStrictEqual({
       parameters: { TYPE: ['a b c', 'd e f'] },
       end: 22,
     });
@@ -556,12 +520,12 @@ describe('Multi-string parameter parsing', () => {
   });
   it('should handle mixed values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
-    expect(
-      parseParameters('x;TYPE="a b c",d e f,"g h i":x', 1, nags, 'X'),
-    ).toStrictEqual({
-      parameters: { TYPE: ['a b c', 'd e f', 'g h i'] },
-      end: 28,
-    });
+    expect(parseParameters('x;TYPE="a b c",d e f,"g h i":x', 1, nags, 'X')).toStrictEqual(
+      {
+        parameters: { TYPE: ['a b c', 'd e f', 'g h i'] },
+        end: 28,
+      },
+    );
     expect(nags).toStrictEqual([]);
   });
 });
@@ -856,10 +820,7 @@ describe('vCard parsing', () => {
           END: { value: 'VCARD' },
           x: {
             X_ABUID: [{ value: '999' }],
-            X_TEST: [
-              { value: '1' },
-              { parameters: { LANGUAGE: 'de' }, value: '2' },
-            ],
+            X_TEST: [{ value: '1' }, { parameters: { LANGUAGE: 'de' }, value: '2' }],
           },
           hasErrors: false,
         },
@@ -877,9 +838,7 @@ describe('vCard parsing', () => {
         {
           BEGIN: { value: 'VCARD' },
           VERSION: { value: '4.0' },
-          FN: [
-            { parameters: { LANGUAGE: 'de,en' }, value: 'Marcel Waldvogel' },
-          ],
+          FN: [{ parameters: { LANGUAGE: 'de,en' }, value: 'Marcel Waldvogel' }],
           END: { value: 'VCARD' },
           hasErrors: false,
           nags: [

@@ -1,6 +1,7 @@
 {
-  "printWidth": 80,
+  "printWidth": 90,
   "tabWidth": 2,
+  "proseWrap": "always",
   "trailingComma": "all",
   "arrowParens": "always",
   "useTabs": false,
