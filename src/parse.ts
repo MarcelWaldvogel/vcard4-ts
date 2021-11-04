@@ -38,7 +38,10 @@ export type PartialVCard = Partial<Omit<VCard4, 'nags'>> & {
  * @param keepErrors Whether very bad vCards should be deleted
  * @returns Array of vCards with metadata; array of global errors
  */
-export function parseVCards(vcf: string, keepDefective: boolean = false): ParsedVCards {
+export function parseVCards(
+  vcf: string,
+  keepDefective: boolean = false,
+): ParsedVCards {
   let globalNags: Nag<undefined>[] = [];
 
   // 1. unwrap: Be lenient in what we accept
@@ -60,7 +63,11 @@ export function parseVCards(vcf: string, keepDefective: boolean = false): Parsed
     }
     if ('END' in vCardInProgress) {
       // Finish this one, ready for a potential next vCard
-      const card = ensureCardinalities(globalNags, vCardInProgress, keepDefective);
+      const card = ensureCardinalities(
+        globalNags,
+        vCardInProgress,
+        keepDefective,
+      );
       if (card) {
         vCards.push(card);
       }
@@ -69,7 +76,11 @@ export function parseVCards(vcf: string, keepDefective: boolean = false): Parsed
   }
   // vCard still in progress?
   if (interestingDataIn(vCardInProgress)) {
-    const card = ensureCardinalities(globalNags, vCardInProgress, keepDefective);
+    const card = ensureCardinalities(
+      globalNags,
+      vCardInProgress,
+      keepDefective,
+    );
     if (card) {
       vCards.push(card);
     }
@@ -87,7 +98,9 @@ export function parseVCards(vcf: string, keepDefective: boolean = false): Parsed
 }
 
 function interestingDataIn(partialVCard: PartialVCard): boolean {
-  return Object.entries(partialVCard).length > 1 || partialVCard.nags.length > 0;
+  return (
+    Object.entries(partialVCard).length > 1 || partialVCard.nags.length > 0
+  );
 }
 
 /**
@@ -237,9 +250,12 @@ export function parseLine(vCardInProgress: PartialVCard, line: string) {
     // Using the property's `<Type>parse()` ensures that we have the proper type,
     // however, to convince the compiler of the same, an 8-way condition would
     // be necessary for each of the three `vCardInProgress[property]` assignments…
-    const parsedValue: any = knownProperties[property].parse(rawValue, (error) => {
-      nagVC(vCardInProgress.nags, error, { property, line });
-    });
+    const parsedValue: any = knownProperties[property].parse(
+      rawValue,
+      (error) => {
+        nagVC(vCardInProgress.nags, error, { property, line });
+      },
+    );
 
     if (isExactlyOnceProperty(property) || isAtMostOnceProperty(property)) {
       // Deal with property cardinality
@@ -366,7 +382,9 @@ export function scanParamValues(
   let index = start;
   let parameterValues: string[] = [];
   let unescapedComma = false;
-  while (line.charAt(index) === (parameterValues.length === 0 ? '=' : moreItemsChar)) {
+  while (
+    line.charAt(index) === (parameterValues.length === 0 ? '=' : moreItemsChar)
+  ) {
     index++;
     if (line.charAt(index) === ',') {
       unescapedComma = true;
@@ -385,7 +403,10 @@ export function scanParamValues(
     } else {
       // Potentially escaped value
       let currentValue = '';
-      while (index < line.length && !separatorChars.includes(line.charAt(index))) {
+      while (
+        index < line.length &&
+        !separatorChars.includes(line.charAt(index))
+      ) {
         if (line.charAt(index) === ',') {
           unescapedComma = true;
         }
@@ -489,7 +510,13 @@ export function parseParameters(
                 line,
               });
             }
-            const retval = scanParamValue(line, index, property, parameterName, nags);
+            const retval = scanParamValue(
+              line,
+              index,
+              property,
+              parameterName,
+              nags,
+            );
             if (retval) {
               index = retval.end;
               if (knownParameters[parameterName].name === 'number') {
@@ -513,7 +540,13 @@ export function parseParameters(
           break;
         case 'string[+]':
           // Re-scan the `=`
-          const values = scanParamValues(line, index, property, parameterName, nags);
+          const values = scanParamValues(
+            line,
+            index,
+            property,
+            parameterName,
+            nags,
+          );
           if (values == null) {
             return null;
           } else {
@@ -529,7 +562,13 @@ export function parseParameters(
           break;
         default:
           // Skip over this unknown type; should never happen
-          const retval = scanParamValue(line, index, property, parameterName, nags);
+          const retval = scanParamValue(
+            line,
+            index,
+            property,
+            parameterName,
+            nags,
+          );
           nagVC(nags, 'PARAM_INVALID_TYPE', {
             property,
             parameter: parameterName,

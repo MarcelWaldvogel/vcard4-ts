@@ -43,7 +43,10 @@ export function scanSingleValue(
  * @param splitChar A semicolon or comma
  * @returns The array of unescaped strings
  */
-export function scan1DValue(s: string, splitChar: ',' | ';'): NonEmptyArray<string> {
+export function scan1DValue(
+  s: string,
+  splitChar: ',' | ';',
+): NonEmptyArray<string> {
   let retval: string[] = [];
   let index = 0;
   let unescaped = '';

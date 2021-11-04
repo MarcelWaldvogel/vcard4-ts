@@ -8,7 +8,10 @@ import {
 
 describe('Runtime type verification', () => {
   it('should parse non-empty string arrays', () => {
-    expect(NonEmptyStringArrayType.parse('A,B', null)).toStrictEqual(['A', 'B']);
+    expect(NonEmptyStringArrayType.parse('A,B', null)).toStrictEqual([
+      'A',
+      'B',
+    ]);
   });
   it('should parse integers', () => {
     expect(NumberType.parse('123', null)).toStrictEqual(123);

@@ -10,7 +10,10 @@ export const errors = {
   // Problems concerning the property name (or its termination)
   PROP_NAME_EMPTY: ['Empty property or group name', true],
   PROP_NAME_EOL: ['Property or group name terminated by line end', true],
-  PROP_MISSING_COLON: ['Internal error: Property not terminated by colon', true],
+  PROP_MISSING_COLON: [
+    'Internal error: Property not terminated by colon',
+    true,
+  ],
   PROP_DUPLICATE: ['Illegal duplicate property', true],
   // Problems concerning a parameter name, value, or separator
   PARAM_UNCLOSED_QUOTE: ['Quoted parameter missing closing quote', true],

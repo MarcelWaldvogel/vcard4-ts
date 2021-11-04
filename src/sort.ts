@@ -14,7 +14,9 @@ export function sortByPREF<T extends Partial<VCard4>>(vcard: T) {
   }
   if ('x' in vcard) {
     for (const [k, v] of Object.entries(vcard.x)) {
-      v.sort((a, b) => (a.parameters?.PREF || 100) - (b.parameters?.PREF || 100));
+      v.sort(
+        (a, b) => (a.parameters?.PREF || 100) - (b.parameters?.PREF || 100),
+      );
     }
   }
 }

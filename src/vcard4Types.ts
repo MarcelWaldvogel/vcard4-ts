@@ -120,13 +120,18 @@ export const atMostOnceProperties = {
   REV: 0,
 };
 export type AtMostOncePropertyNames = keyof typeof atMostOnceProperties;
-export type AtMostOnceProperties = Pick<typeof knownProperties, AtMostOncePropertyNames>;
+export type AtMostOnceProperties = Pick<
+  typeof knownProperties,
+  AtMostOncePropertyNames
+>;
 export const isAtMostOnceProperty = keyTypeGuard(atMostOnceProperties);
 
 // "*" cardinality properties from RFC 6350
 export type AnyCardinalityProperties = Omit<
   typeof knownProperties,
-  keyof ExactlyOnceProperties | keyof AtLeastOnceProperties | keyof AtMostOnceProperties
+  | keyof ExactlyOnceProperties
+  | keyof AtLeastOnceProperties
+  | keyof AtMostOnceProperties
 >;
 // AnyCardinality type guard cannot be defined, as we do not have an object
 // (without, redundantly, actually creating it manually):
@@ -147,11 +152,12 @@ export type VCardSingles<Selection extends Partial<typeof knownProperties>> = {
   >;
 };
 // Every element with its type, embedded in a NonEmptyArray of SingleVCardProperties
-export type VCardMultiples<Selection extends Partial<typeof knownProperties>> = {
-  [k in keyof Selection & keyof typeof knownProperties]: NonEmptyArray<
-    SingleVCardProperty<TypeOf<typeof knownProperties[k]>>
-  >;
-};
+export type VCardMultiples<Selection extends Partial<typeof knownProperties>> =
+  {
+    [k in keyof Selection & keyof typeof knownProperties]: NonEmptyArray<
+      SingleVCardProperty<TypeOf<typeof knownProperties[k]>>
+    >;
+  };
 export type VCard4 = Flatten<
   VCardSingles<ExactlyOnceProperties> &
     Partial<VCardSingles<AtMostOnceProperties>> &
