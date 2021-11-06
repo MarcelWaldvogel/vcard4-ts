@@ -181,7 +181,8 @@ once and every reference to it later already knows how to deal with it. It is
 even possible to combine assertion and access with
 [optional chaining](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#optional-chaining).
 
-Array thickening results in less code for the caller, which often also results
+[Array thickening](https://netfuture.ch/2021/11/array-thickening-more-can-be-less/)
+results in less code for the caller, which often also results
 in less code coverage, i.e., the uncommon case is not tested. In other words,
 array thickening turns the general case (whether common or uncommon) into the
 only case.
