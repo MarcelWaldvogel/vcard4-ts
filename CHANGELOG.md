@@ -11,6 +11,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Fixed
 
+- Undefined `PREF` is sorted _behind_ `PREF=100` (RFC6350)
+
 ## Changed
 
 - Narrowed the `Uppercase<string>` types

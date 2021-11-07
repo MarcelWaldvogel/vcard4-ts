@@ -8,7 +8,9 @@ export function sortByPREF<T extends Partial<VCard4>>(vcard: T) {
       const v = vcard[k];
       if (Array.isArray(v)) {
         v.sort(
-          (a, b) => (a.parameters?.PREF || 100) - (b.parameters?.PREF || 100),
+          (a, b) =>
+            (a.parameters?.PREF || Number.MAX_SAFE_INTEGER) -
+            (b.parameters?.PREF || Number.MAX_SAFE_INTEGER),
         );
       }
     }
@@ -16,7 +18,9 @@ export function sortByPREF<T extends Partial<VCard4>>(vcard: T) {
   if ('x' in vcard) {
     for (const [k, v] of Object.entries(vcard.x)) {
       v.sort(
-        (a, b) => (a.parameters?.PREF || 100) - (b.parameters?.PREF || 100),
+        (a, b) =>
+          (a.parameters?.PREF || Number.MAX_SAFE_INTEGER) -
+          (b.parameters?.PREF || Number.MAX_SAFE_INTEGER),
       );
     }
   }

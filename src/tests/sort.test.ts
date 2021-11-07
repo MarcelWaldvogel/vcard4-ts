@@ -71,6 +71,37 @@ describe('Sorting by preference', () => {
       },
     });
   });
+  it('should sort properties with missing PREF behind 100', () => {
+    let vcard: Partial<VCard4> = {
+      EMAIL: [
+        { parameters: { PREF: 100 }, value: 'c@c.c' },
+        { parameters: { LANGUAGE: 'de' }, value: 'a@a.a' },
+        { parameters: { PREF: 2 }, value: 'b@b.b' },
+      ],
+      x: {
+        X_COMPUSERVE: [
+          { value: '2222.2222' },
+          { parameters: { PREF: 100 }, value: '3333.3333' },
+          { parameters: { PREF: 1 }, value: '1111.1111' },
+        ],
+      },
+    };
+    sortByPREF(vcard);
+    expect(vcard).toStrictEqual({
+      EMAIL: [
+        { parameters: { PREF: 2 }, value: 'b@b.b' },
+        { parameters: { PREF: 100 }, value: 'c@c.c' },
+        { parameters: { LANGUAGE: 'de' }, value: 'a@a.a' },
+      ],
+      x: {
+        X_COMPUSERVE: [
+          { parameters: { PREF: 1 }, value: '1111.1111' },
+          { parameters: { PREF: 100 }, value: '3333.3333' },
+          { value: '2222.2222' },
+        ],
+      },
+    });
+  });
   it('should sort properties with NaN PREF value last', () => {
     let vcard: Partial<VCard4> = {
       EMAIL: [
