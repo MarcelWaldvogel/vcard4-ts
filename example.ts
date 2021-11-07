@@ -1,4 +1,4 @@
-import { parseVCards } from './src';
+import { parseVCards, sortByPREF } from './src';
 import { readFileSync } from 'fs';
 
 const vcf = readFileSync('example.vcf').toString();
@@ -21,7 +21,9 @@ if (cards.nags) {
     }
   }
 }
-for (const card of cards.vCards) {
+for (let card of cards.vCards) {
+  // If you would like element 0 to correspond to the most PREFerred item:
+  sortByPREF(card);
   // You're guaranteed to have all these (required) properties
   console.log('Found vCard with version ' + card.VERSION.value);
   console.log('Full name: ' + card.FN[0].value[0]);
