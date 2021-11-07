@@ -9,6 +9,10 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 
+- Grouping grouped properties (such as `1.ADR` and `1.TEL` into group `1` and
+  `2.ADR` and `2.TEL` into `2`, and everything ungrouped into `top`) using
+  `groupVCard()`
+
 ## Fixed
 
 - Undefined `PREF` is sorted _behind_ `PREF=100` (RFC6350)

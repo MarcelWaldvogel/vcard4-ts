@@ -182,10 +182,10 @@ even possible to combine assertion and access with
 [optional chaining](https://www.typescriptlang.org/docs/handbook/release-notes/typescript-3-7.html#optional-chaining).
 
 [Array thickening](https://netfuture.ch/2021/11/array-thickening-more-can-be-less/)
-results in less code for the caller, which often also results
-in less code coverage, i.e., the uncommon case is not tested. In other words,
-array thickening turns the general case (whether common or uncommon) into the
-only case.
+results in less code for the caller, which often also results in less code
+coverage, i.e., the uncommon case is not tested. In other words, array
+thickening turns the general case (whether common or uncommon) into the only
+case.
 
 ## API
 
@@ -194,6 +194,26 @@ only case.
 - `sortByPREF<T extends Partial<VCard4>>(vcard: T)`: Sort properties which exist
   multiple times by their preference parameter (1…100; the ones without `PREF`
   are sorted last).
+- `groupVCard<T extends Partial<VCard4>>(vcard: T): GroupedVCard`: Group
+  properties with group labels into their named group (all non-lowercase names).
+  Anything without an explicit group label will end up in the `top`.
+  (`GroupedVCard` is `Record<Uppercase<string> | 'top', Partial<VCard4>>`).
+
+Sorting and grouping are separate functions, not methods of an object, to ensure
+that their code will only be included if you call them.
+
+If you need sorting _and_ grouping, use the following sequence:
+
+```ts
+const cards = parseVCards(vcf);
+if (cards.vCards) {
+  for (const card of cards.vCards) {
+    sortByPREF(card);
+    const grouped = groupVCard(card);
+    // Process the PREF-sorted groups here
+  }
+}
+```
 
 ## Reference
 

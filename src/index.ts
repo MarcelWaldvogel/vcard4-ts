@@ -6,3 +6,4 @@ export * from './runtimeTypes';
 export * from './nonEmptyArray';
 export * from './parse';
 export * from './sort';
+export * from './group';
