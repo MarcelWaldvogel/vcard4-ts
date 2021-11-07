@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/) and this
 project adheres to [Semantic Versioning](https://semver.org/).
 
+# 0.2.0+ - [Unreleased]
+
+## Added
+
+## Fixed
+
+## Changed
+
+- Narrowed the `Uppercase<string>` types
+
 # 0.2.0 - 2021-11-02
 
 ## Added

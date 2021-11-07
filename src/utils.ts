@@ -15,6 +15,6 @@ export function isPropertyChar(char: string): Boolean {
  * @param name The parsed identifier (group, property, or parameter name)
  * @returns The key for the Records.
  */
-export function nameToKey(name: string): string {
+export function nameToKey(name: string): Uppercase<string> {
   return name.toUpperCase().replace(/-/g, '_');
 }

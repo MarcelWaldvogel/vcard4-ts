@@ -313,7 +313,11 @@ export function scanPropertyOrGroup(
   return null;
 }
 
-type GroupedProperty = { group?: string; property: string; end: number };
+type GroupedProperty = {
+  group?: Uppercase<string>;
+  property: Uppercase<string>;
+  end: number;
+};
 
 /**
  * Extract (group and) property names.
