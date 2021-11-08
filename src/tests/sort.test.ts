@@ -102,33 +102,41 @@ describe('Sorting by preference', () => {
       },
     });
   });
-  it('should sort properties with NaN PREF value last', () => {
+  it('should sort properties with NaN/missing PREF value last (and maintain their relative order)', () => {
     let vcard: Partial<VCard4> = {
+      UID: { value: '123' },
       EMAIL: [
         { parameters: { PREF: 3 }, value: 'c@c.c' },
         { parameters: { LANGUAGE: 'de', PREF: 1 }, value: 'a@a.a' },
         { parameters: { LANGUAGE: 'en', PREF: NaN }, value: 'b@b.b' },
+        { value: 'd@d.d' },
+        { value: 'e@e.e' },
       ],
       x: {
         X_COMPUSERVE: [
           { parameters: { PREF: NaN }, value: '2222.2222' },
           { parameters: { PREF: 3 }, value: '3333.3333' },
           { parameters: { PREF: 1 }, value: '1111.1111' },
+          { value: '4444.4444' },
         ],
       },
     };
     sortByPREF(vcard);
     expect(vcard).toStrictEqual({
+      UID: { value: '123' },
       EMAIL: [
         { parameters: { LANGUAGE: 'de', PREF: 1 }, value: 'a@a.a' },
         { parameters: { PREF: 3 }, value: 'c@c.c' },
         { parameters: { LANGUAGE: 'en', PREF: NaN }, value: 'b@b.b' },
+        { value: 'd@d.d' },
+        { value: 'e@e.e' },
       ],
       x: {
         X_COMPUSERVE: [
           { parameters: { PREF: 1 }, value: '1111.1111' },
           { parameters: { PREF: 3 }, value: '3333.3333' },
           { parameters: { PREF: NaN }, value: '2222.2222' },
+          { value: '4444.4444' },
         ],
       },
     });
