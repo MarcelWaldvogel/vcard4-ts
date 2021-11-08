@@ -90,14 +90,21 @@ describe('Grouping by property group', () => {
       END: { value: 'VCARD' },
       x: {
         X_EMAIL: [{ group: 'B', value: 'b@b.b' }, { value: 'c@c.c' }],
-        X_TEL: [{ group: 'A', value: '+111' }, { value: '+333' }],
+        X_TEL: [
+          { group: 'A', value: '+111' },
+          { group: 'A', value: '+123' },
+          { value: '+333' },
+        ],
         X_ABUID: [{ group: 'A', value: '123' }],
       },
     };
     expect(groupVCard(vcard)).toStrictEqual({
       A: {
         x: {
-          X_TEL: [{ group: 'A', value: '+111' }],
+          X_TEL: [
+            { group: 'A', value: '+111' },
+            { group: 'A', value: '+123' },
+          ],
           X_ABUID: [{ group: 'A', value: '123' }],
         },
       },

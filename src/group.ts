@@ -38,7 +38,7 @@ export function groupVCard<T extends Partial<VCard4>>(vcard: T): GroupedVCard {
         const groupName = e.group ?? 'top';
         grouped[groupName] ??= {};
         grouped[groupName].x ??= {};
-        if (propertyName in grouped[groupName]) {
+        if (propertyName in grouped[groupName].x) {
           (
             grouped[groupName].x[propertyName] as SingleVCardProperty<any>[]
           ).push(e);
