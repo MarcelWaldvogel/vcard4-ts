@@ -13,7 +13,11 @@
     "*.md",
     "*.json"
   ],
-  "repository": "https://github.com/MarcelWaldvogel/vcard4-ts",
+  "homepage": "https:/netfuture.ch/vcard4-ts/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MarcelWaldvogel/vcard4-ts.git"
+  },
   "author": "Marcel Waldvogel",
   "license": "MIT",
   "keywords": [
