@@ -31,6 +31,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 ## Changed
 
 - Narrowed the `Uppercase<string>` types
+- Requires TypeScript 4.1 (released November 2020)
 
 # 0.2.0 - 2021-11-02
 
