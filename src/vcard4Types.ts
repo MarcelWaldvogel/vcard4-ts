@@ -27,6 +27,8 @@ export const knownParameters = {
   GEO: StringType,
   TZ: StringType,
   CC: StringType, // RFC8605
+  INDEX: NumberType, // RFC6715
+  LEVEL: StringType, // RFC6715
 };
 export type KnownParameterNames = keyof typeof knownParameters;
 export const isKnownParameter = keyTypeGuard(knownParameters);
@@ -82,6 +84,10 @@ export const knownProperties = {
   CALADRURI: StringType,
   CALURI: StringType,
   CONTACT_URI: StringType, // RFC8605
+  EXPERTISE: StringType, // RFC6715
+  HOBBY: StringType, // RFC6715
+  INTEREST: StringType, // RFC6715
+  ORG_DIRECTORY: StringType, // RFC6715
 };
 export type KnownPropertyNames = keyof typeof knownProperties;
 export const isKnownProperty = keyTypeGuard(knownProperties);
