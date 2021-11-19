@@ -6,7 +6,8 @@
 
 `vcard4-ts` was designed with the following goals:
 
-- [RFC 6350](https://datatracker.ietf.org/doc/html/rfc6350) compliant
+- Compliant with [RFC 6350](https://datatracker.ietf.org/doc/html/rfc6350) and
+  its extensions
 
 - TypeScript (and type safety) from the ground up
 
@@ -21,6 +22,24 @@
     code) and TypeScript compile time should be handled there. E.g., no need to
     check whether there is a single or multiple values: if something can occur
     multiple times, the item is always in an array.
+
+In addition to RFC6350, the following RFCs are implemented:
+
+- [RFC 6474](https://datatracker.ietf.org/doc/html/rfc6474/): `BIRTHPLACE`,
+  `DEATHPLACE`, and `DEATHDATE` properties
+- [RFC 6715](https://datatracker.ietf.org/doc/html/rfc6715/): `EXPERTISE`,
+  `INTEREST`, `HOBBY`, `ORG-DIRECTORY` properties and `LEVEL`, `INDEX`
+  parameters
+- [RFC 8605](https://datatracker.ietf.org/doc/html/rfc8605/): `CONTACT-URI`
+  property and `CC` (two-letter country code) parameter
+
+`vcard4-ts` is compatible to the following RFCs, as it does not impose any
+limitation on string-valued parameters and values:
+
+- [RFC 6473](https://datatracker.ietf.org/doc/html/rfc6473): The
+  `KIND:application` property
+- [RFC 7852](https://datatracker.ietf.org/doc/html/rfc7852/): The
+  `TYPE=main-number` parameter
 
 ## Installation
 
@@ -234,8 +253,9 @@ Lowercase JavaScript/TypeScript properties are maintained by the parser.
   required value in TypeScript)
 - `FN` (full name) exists at least once (`1*` in RFC6350; optional array in
   TypeScript)
-- `PRODID`, `UID`, `REV`, `KIND`, `N` (name), `BDAY`, `ANNIVERSARY`, and
-  `GENDER` are optional (`*1` in RFC6350; optional value in TypeScript)
+- `PRODID`, `UID`, `REV`, `KIND`, `N` (name), `BDAY`, `BIRTHPLACE`, `DEATHDATE`,
+  `DEATHPLACE`, `ANNIVERSARY`, and `GENDER` are optional (`*1` in RFC6350;
+  optional value in TypeScript)
 - [All others](src/vcard4Types.ts) can occur any number of times (`*` in
   RFC6350; optional array in TypeScript)
 
@@ -263,6 +283,8 @@ Properties can have
 
 - `PREF` is a `number`. It is not asserted whether it is in the range [1…100]
   required by the RFC; non-numeric values are returned as `NaN`.
+- `INDEX` is a `number`. It is not asserted whether it is a strictly positive
+  integer as mandated by RFC6715; non-numeric values are returned as `NaN`.
 - `PID`, `TYPE`, and `SORT_AS` (`SORT-AS` in the VCF) are `string[]`s, again
   with a guaranteed minimum array length of 1. (Please note that
   [the example in the RFC](https://datatracker.ietf.org/doc/html/rfc6350#section-8)
@@ -271,18 +293,18 @@ Properties can have
   so you may want to apply `split(',')` to all `TYPE` values first.)
 - All others are single `string`s.
 
-### Non-RFC6350 properties and parameters
+### Non-RFC properties and parameters
 
-Any property or parameter whose type is not explicitely given in RFC6350,
-including those prefixed by `X-`, are not included at the same level as the rest
-of the properties. One reason is that
+Any property or parameter whose type is not explicitely given in RFC6350 and the
+RFCs that extend it, including those prefixed by `X-`, are not included at the
+same level as the rest of the properties. One reason is that
 [TypeScript does not really allow default types on object properties](https://basarat.gitbook.io/typescript/type-system/index-signatures#excluding-certain-properties-from-the-index-signature)
 and therefore,
 [nested index signatures](https://basarat.gitbook.io/typescript/type-system/index-signatures#design-pattern-nested-index-signature)
 are recommended for this.
 
-Instead, non-RFC6350 properties and parameters are put into an `x` object
-property. The actual value will be a plain, unprocessed `string`. If it has more
+Instead, non-RFC properties and parameters are put into an `x` object property.
+The actual value will be a plain, unprocessed `string`. If it has more
 structure, you need to extract it yourselves, e.g. using
 
 - `scan1DValue()`, which unescapes and splits at the specified `splitChar` (`,`,
