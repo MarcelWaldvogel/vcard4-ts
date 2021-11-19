@@ -25,7 +25,8 @@
 ## Installation
 
 `yarn add vcard4-ts` or `npm i vcard4-ts`. No dependencies (except
-devDependencies).
+devDependencies). And only about 10 kB (compressed) will end up in your code,
+the rest is tests, alternatives, debugging information, …
 
 ## Usage
 
