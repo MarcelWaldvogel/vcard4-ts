@@ -27,8 +27,9 @@ export type ParsedVCards = {
   vCards?: NonEmptyArray<VCard4>;
   nags?: NonEmptyArray<Nag<undefined>>;
 };
-export type PartialVCard = Partial<Omit<VCard4, 'nags'>> & {
+export type PartialVCard = Partial<Omit<VCard4, 'nags' | 'unparseable'>> & {
   nags: Nag<VCardNagAttributes>[];
+  unparseable: string[];
   didNotStartWithBEGIN?: boolean;
 };
 
@@ -51,7 +52,7 @@ export function parseVCards(
   vcf = vcf.replace(/\r?\n[ \t]/g, '');
 
   // 2. process (unwrapped) line by line
-  let vCardInProgress: PartialVCard = { nags: [] };
+  let vCardInProgress: PartialVCard = { nags: [], unparseable: [] };
   let vCards: VCard4[] = [];
   for (const line of vcf.split(/\r?\n/)) {
     if (line === '') {
@@ -71,7 +72,7 @@ export function parseVCards(
       if (card) {
         vCards.push(card);
       }
-      vCardInProgress = { nags: [] };
+      vCardInProgress = { nags: [], unparseable: [] };
     }
   }
   // vCard still in progress?
@@ -99,7 +100,9 @@ export function parseVCards(
 
 function interestingDataIn(partialVCard: PartialVCard): boolean {
   return (
-    Object.entries(partialVCard).length > 1 || partialVCard.nags.length > 0
+    Object.entries(partialVCard).length > 2 ||
+    partialVCard.nags.length > 0 ||
+    partialVCard.unparseable.length > 0
   );
 }
 
@@ -209,6 +212,12 @@ function ensureCardinalities(
     delete partialVCard.nags;
   }
 
+  // Clean `unparseable`
+  partialVCard.unparseable = maybeArray(partialVCard.unparseable);
+  if (!partialVCard.unparseable) {
+    delete partialVCard.unparseable;
+  }
+
   // Clean possible internal flags
   delete partialVCard.didNotStartWithBEGIN;
 
@@ -224,6 +233,7 @@ function ensureCardinalities(
 export function parseLine(vCardInProgress: PartialVCard, line: string) {
   const propertyInfo = extractProperty(line, vCardInProgress.nags);
   if (!propertyInfo) {
+    vCardInProgress.unparseable.push(line);
     return;
   }
   const property = propertyInfo.property;
@@ -235,12 +245,14 @@ export function parseLine(vCardInProgress: PartialVCard, line: string) {
   );
   if (!parameterInfo) {
     // Has already been nagged
+    vCardInProgress.unparseable.push(line);
     return;
   }
   const parameters = parameterInfo.parameters;
   if (line.charAt(parameterInfo.end) !== ':') {
     // Should not happen
     nagVC(vCardInProgress.nags, 'PROP_MISSING_COLON', { property, line });
+    vCardInProgress.unparseable.push(line);
     return;
   }
   const rawValue = line.substring(parameterInfo.end + 1);
@@ -262,6 +274,7 @@ export function parseLine(vCardInProgress: PartialVCard, line: string) {
       if (property in vCardInProgress) {
         // Too many; ignore all but first
         nagVC(vCardInProgress.nags, 'PROP_DUPLICATE', { property, line });
+        vCardInProgress.unparseable.push(line);
         return;
       } else {
         vCardInProgress[property] = { parameters, value: parsedValue };
