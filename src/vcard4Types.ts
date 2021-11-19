@@ -26,6 +26,7 @@ export const knownParameters = {
   SORT_AS: NonEmptyStringArrayType,
   GEO: StringType,
   TZ: StringType,
+  CC: StringType, // RFC8605
 };
 export type KnownParameterNames = keyof typeof knownParameters;
 export const isKnownParameter = keyTypeGuard(knownParameters);
@@ -80,6 +81,7 @@ export const knownProperties = {
   FBURL: StringType,
   CALADRURI: StringType,
   CALURI: StringType,
+  CONTACT_URI: StringType, // RFC8605
 };
 export type KnownPropertyNames = keyof typeof knownProperties;
 export const isKnownProperty = keyTypeGuard(knownProperties);

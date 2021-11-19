@@ -9,6 +9,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Added
 
+- Suport RFC8605 `CONTACT-URI` and `CC`
+
 ## Fixed
 
 ## Changed
