@@ -2,7 +2,7 @@ import { errorKeys } from './errorCodes';
 import { NonEmptyArray } from './nonEmptyArray';
 
 /**
- * Remove escape sequences from a quoted parameter string.
+ * Remove escape sequences from a single value string.
  * Essentially just understands \n, as almost all other escaping is either unnecessary or illegal.
  * @param s Escaped (formerly quoted) parameter value string
  * @returns Unescaped string
@@ -32,6 +32,56 @@ export function scanSingleValue(
   }
   if (unescapedComma && errorCallback) {
     errorCallback('VALUE_UNESCAPED_COMMA');
+  }
+  return value;
+}
+
+/**
+ * Handle escape sequences in a quoted parameter string.
+ * - RFC6868 (`^^`, `^'`, and `^n`)
+ * - Nag about `\n`
+ * @param s Escaped (formerly quoted) parameter value string
+ * @returns Unescaped string
+ */
+export function scanSingleParamValue(
+  s: string,
+  errorCallback: ((error: errorKeys) => void) | null,
+): string {
+  let index = 0;
+  let value = '';
+  let warnings: Set<errorKeys> = new Set();
+  while (index < s.length) {
+    const char = s.charAt(index);
+    if (char === '^') {
+      const escaped = s.charAt(index + 1);
+      switch (escaped) {
+        case '^':
+          value += '^';
+          break;
+        case "'":
+          value += '"';
+          break;
+        case 'n': // RFC says U+005E only
+          value += '\n';
+          break;
+        default:
+          value += '^' + escaped;
+          warnings.add('PARAM_BAD_CIRCUMFLEX');
+          break;
+      }
+      index += 2;
+    } else {
+      if (char === ',') {
+        warnings.add('PARAM_UNESCAPED_COMMA');
+      } else if (char === '\\') {
+        warnings.add('PARAM_BAD_BACKSLASH');
+      }
+      value += char;
+      index++;
+    }
+  }
+  if (errorCallback) {
+    warnings.forEach(errorCallback);
   }
   return value;
 }

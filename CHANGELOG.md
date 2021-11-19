@@ -13,11 +13,24 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Support RFC6715 properties `EXPERTISE`, `INTEREST`, `HOBBY`, `ORG-DIRECTORY`
   and parameters `LEVEL`, `INDEX`
 - Support RFC6474 properties `BIRTHPLACE`, `DEATHPLACE`, `DEATHDATE`
+- Support RFC6868 double-quoted parameter value escaping using `^` (no more
+  support for `\n` for these, see changes below).
+- Support RFC6350 parameter `LABEL`, which does not have its own section, but is
+  only mentioned (essentially "in passing") in the `ADR` description.
 
 ## Fixed
 
+- Did not nag at all about escaping warnings in double-quoted parameter values
+
 ## Changed
 
+- Backslash sequences in double-quoted parameter values (e.g., `\n`) are passed
+  along transparently, in accordance with RFC6868. `\n` in parameter values _not
+  enclosed in double quotes_ will still be processed, as mandated for the
+  `LABEL` parameter in
+  [RFC6350, `ADR` section](https://datatracker.ietf.org/doc/html/rfc6350#section-6.3.1).
+- As of RFC6868 support, single-valued property values no longer use the same
+  unescaping code as double-quoted parameter values.
 - Ignore "should not happen" code from coverage
 
 # 0.3.1 - 2021-11-08

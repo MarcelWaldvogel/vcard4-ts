@@ -2,7 +2,6 @@
 // Modeled after [https://github.com/colinhacks/zod](Zod).
 
 import { errorKeys } from './errorCodes';
-import { nagVC } from './errors';
 import { NonEmptyArray } from './nonEmptyArray';
 import { scan1DValue, scan2DValue, scanSingleValue } from './scan';
 

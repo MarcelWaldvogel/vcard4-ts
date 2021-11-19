@@ -23,6 +23,11 @@ export const errors = {
   PARAM_NOT_SINGLE: ["Internal error: Single parameter isn't", true],
   PARAM_DUPLICATE: ['Illegal duplicate parameter', true],
   PARAM_UNESCAPED_COMMA: ['Unescaped comma in parameter value', false],
+  PARAM_BAD_BACKSLASH: ['Backslash found in parameter value', false],
+  PARAM_BAD_CIRCUMFLEX: [
+    'Circumflex not part of escape sequence in parameter value',
+    false,
+  ],
   // Problems concerning the actual property value
   VALUE_INVALID: ['Invalid property value', true],
   VALUE_UNESCAPED_COMMA: ['Unescaped comma in value', false],

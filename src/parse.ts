@@ -1,6 +1,6 @@
 import { nag, Nag, nagVC, VCardNagAttributes } from './errors';
 import { maybeArray, NonEmptyArray } from './nonEmptyArray';
-import { scanSingleValue } from './scan';
+import { scanSingleParamValue } from './scan';
 import { isPropertyChar, nameToKey } from './utils';
 import {
   atLeastOnceProperties,
@@ -401,7 +401,12 @@ export function scanParamValues(
         return null;
       }
       parameterValues.push(
-        scanSingleValue(line.substring(index + 1, closingQuote), null),
+        scanSingleParamValue(
+          line.substring(index + 1, closingQuote),
+          (error) => {
+            nagVC(nags, error, { property, parameter, line });
+          },
+        ),
       );
       index = closingQuote + 1;
     } else {

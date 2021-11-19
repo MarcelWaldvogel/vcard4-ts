@@ -420,6 +420,14 @@ itself.
 - `PARAM_UNESCAPED_COMMA`: A local warning. A parameter accepting only a single
   value contained an unescaped comma. This may indicate incomplete character
   escaping or trying to provide multiple values where they are not allowed.
+- `PARAM_BAD_BACKSLASH`: A local warning. In a double-quoted parameter value, a
+  backslash was found. Escaping in quoted parameter values should be according
+  to RFC6868, using circumflexes (`^`). This indicates a possible problem in the
+  input file; the backslash was not treated as a special character.
+- `PARAM_BAD_CIRCUMFLEX`: A local warning. In a double-quoted parameter value, a
+  circumflex (`^`) was found, which was not part of an escape sequence. This
+  indicates a possible problem in the input file; that circumflex was not
+  treated as a special character.
 - `VALUE_INVALID`: A local error. A property with a required value had a
   different value.
 - `VALUE_UNESCAPED_COMMA`: A local warning. A property accepting only a single

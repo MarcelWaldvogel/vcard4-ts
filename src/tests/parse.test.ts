@@ -391,27 +391,70 @@ describe('String parameter parsing', () => {
       parameters: { LANGUAGE: 'a,b;c:d' },
       end: 20,
     });
-    expect(nags).toStrictEqual([]);
+    expect(nags).toStrictEqual([
+      {
+        attributes: {
+          line: 'x;LANGUAGE="a,b;c:d":x',
+          parameter: 'LANGUAGE',
+          property: 'X',
+        },
+        description: 'Unescaped comma in parameter value',
+        isError: false,
+        key: 'PARAM_UNESCAPED_COMMA',
+      },
+    ]);
   });
   it('should handle newlines in quoted values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(
-      parseParameters('x;LANGUAGE="A\\nB\\\\nC":x', 1, nags, 'X'),
+      parseParameters('x;LANGUAGE="A^nB\\^nC":x', 1, nags, 'X'),
     ).toStrictEqual({
-      parameters: { LANGUAGE: 'A\nB\\nC' },
+      parameters: { LANGUAGE: 'A\nB\\\nC' },
       end: 21,
     });
-    expect(nags).toStrictEqual([]);
+    expect(nags).toStrictEqual([
+      {
+        attributes: {
+          line: 'x;LANGUAGE="A^nB\\^nC":x',
+          parameter: 'LANGUAGE',
+          property: 'X',
+        },
+        description: 'Backslash found in parameter value',
+        isError: false,
+        key: 'PARAM_BAD_BACKSLASH',
+      },
+    ]);
   });
-  it('should ignore most other backslashes in quoted values', () => {
+  it('should nag about backslashes in quoted values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(
       parseParameters('x;LANGUAGE="a\\,b;c:d\\":x', 1, nags, 'X'),
     ).toStrictEqual({
-      parameters: { LANGUAGE: 'a,b;c:d' },
+      parameters: { LANGUAGE: 'a\\,b;c:d\\' },
       end: 22,
     });
-    expect(nags).toStrictEqual([]);
+    expect(nags).toStrictEqual([
+      {
+        attributes: {
+          line: 'x;LANGUAGE="a\\,b;c:d\\":x',
+          parameter: 'LANGUAGE',
+          property: 'X',
+        },
+        description: 'Backslash found in parameter value',
+        isError: false,
+        key: 'PARAM_BAD_BACKSLASH',
+      },
+      {
+        attributes: {
+          line: 'x;LANGUAGE="a\\,b;c:d\\":x',
+          parameter: 'LANGUAGE',
+          property: 'X',
+        },
+        description: 'Unescaped comma in parameter value',
+        isError: false,
+        key: 'PARAM_UNESCAPED_COMMA',
+      },
+    ]);
   });
 });
 
@@ -522,27 +565,70 @@ describe('Multi-string parameter parsing', () => {
       parameters: { TYPE: ['a,b;c:d'] },
       end: 16,
     });
-    expect(nags).toStrictEqual([]);
+    expect(nags).toStrictEqual([
+      {
+        attributes: {
+          line: 'x;TYPE="a,b;c:d":x',
+          parameter: 'TYPE',
+          property: 'X',
+        },
+        description: 'Unescaped comma in parameter value',
+        isError: false,
+        key: 'PARAM_UNESCAPED_COMMA',
+      },
+    ]);
   });
   it('should handle newlines in quoted values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(
-      parseParameters('x;TYPE="A\\nB\\\\nC":x', 1, nags, 'X'),
+      parseParameters('x;TYPE="A^n\\nB\\^nC":x', 1, nags, 'X'),
     ).toStrictEqual({
-      parameters: { TYPE: ['A\nB\\nC'] },
-      end: 17,
+      parameters: { TYPE: ['A\n\\nB\\\nC'] },
+      end: 19,
     });
-    expect(nags).toStrictEqual([]);
+    expect(nags).toStrictEqual([
+      {
+        attributes: {
+          line: 'x;TYPE="A^n\\nB\\^nC":x',
+          parameter: 'TYPE',
+          property: 'X',
+        },
+        description: 'Backslash found in parameter value',
+        isError: false,
+        key: 'PARAM_BAD_BACKSLASH',
+      },
+    ]);
   });
   it('should ignore most other backslashes in quoted values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];
     expect(
       parseParameters('x;TYPE="a\\,b;c:d\\":x', 1, nags, 'X'),
     ).toStrictEqual({
-      parameters: { TYPE: ['a,b;c:d'] },
+      parameters: { TYPE: ['a\\,b;c:d\\'] },
       end: 18,
     });
-    expect(nags).toStrictEqual([]);
+    expect(nags).toStrictEqual([
+      {
+        attributes: {
+          line: 'x;TYPE="a\\,b;c:d\\":x',
+          parameter: 'TYPE',
+          property: 'X',
+        },
+        description: 'Backslash found in parameter value',
+        isError: false,
+        key: 'PARAM_BAD_BACKSLASH',
+      },
+      {
+        attributes: {
+          line: 'x;TYPE="a\\,b;c:d\\":x',
+          parameter: 'TYPE',
+          property: 'X',
+        },
+        description: 'Unescaped comma in parameter value',
+        isError: false,
+        key: 'PARAM_UNESCAPED_COMMA',
+      },
+    ]);
   });
   it('should handle multiple quoted values', () => {
     let nags: Nag<VCardNagAttributes>[] = [];

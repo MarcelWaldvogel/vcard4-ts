@@ -26,6 +26,7 @@ export const knownParameters = {
   SORT_AS: NonEmptyStringArrayType,
   GEO: StringType,
   TZ: StringType,
+  LABEL: StringType, // RFC6350, mentioned in 6.3.1 only
   CC: StringType, // RFC8605
   INDEX: NumberType, // RFC6715
   LEVEL: StringType, // RFC6715
