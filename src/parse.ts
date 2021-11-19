@@ -454,6 +454,7 @@ export function scanParamValue(
 ): { value: string; end: number } | null {
   const result = scanParamValues(line, start, property, parameter, nags, true);
   if (result) {
+    /* istanbul ignore else */
     if (result.value.length === 1) {
       return { value: result.value[0], end: result.end };
     } else {
@@ -564,6 +565,7 @@ export function parseParameters(
             index = values.end;
           }
           break;
+        /* istanbul ignore next */
         default:
           // Skip over this unknown type; should never happen
           const retval = scanParamValue(
