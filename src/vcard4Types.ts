@@ -56,6 +56,9 @@ export const knownProperties = {
   BDAY: StringType,
   ANNIVERSARY: StringType,
   GENDER: GENDERType,
+  BIRTHPLACE: StringType, // RFC6474
+  DEATHPLACE: StringType, // RFC6474
+  DEATHDATE: StringType, // RFC6474
   // Cardinality: *
   CLIENTPIDMAP: CLIENTPIDMAPType,
   SOURCE: StringType,
@@ -126,6 +129,9 @@ export const atMostOnceProperties = {
   ANNIVERSARY: 0,
   GENDER: 0,
   REV: 0,
+  BIRTHPLACE: 0,
+  DEATHPLACE: 0,
+  DEATHDATE: 0,
 };
 export type AtMostOncePropertyNames = keyof typeof atMostOnceProperties;
 export type AtMostOnceProperties = Pick<

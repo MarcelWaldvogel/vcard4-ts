@@ -12,6 +12,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 - Suport RFC8605 property `CONTACT-URI` and parameter `CC`
 - Support RFC6715 properties `EXPERTISE`, `INTEREST`, `HOBBY`, `ORG-DIRECTORY`
   and parameters `LEVEL`, `INDEX`
+- Support RFC6474 properties `BIRTHPLACE`, `DEATHPLACE`, `DEATHDATE`
 
 ## Fixed
 
