@@ -1,3 +1,6 @@
+// The origin of the example code in the REAMDE; look there for
+// documentation. This here is just for convenience and testing.
+
 import { parseVCards, sortByPREF } from './src';
 import { readFileSync } from 'fs';
 
