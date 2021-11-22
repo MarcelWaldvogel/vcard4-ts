@@ -181,5 +181,6 @@ export type VCard4 = Flatten<
       x?: Record<string, NonEmptyArray<SingleVCardProperty<string>>>;
       nags?: NonEmptyArray<Nag<VCardNagAttributes>>;
       hasErrors: boolean;
+      unparseable?: NonEmptyArray<string>;
     }
 >;

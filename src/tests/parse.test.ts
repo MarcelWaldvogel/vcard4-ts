@@ -654,7 +654,7 @@ describe('Multi-string parameter parsing', () => {
 
 describe('Line parsing', () => {
   it('should nag on empty property', () => {
-    let partialVCard: PartialVCard = { nags: [] };
+    let partialVCard: PartialVCard = { nags: [], unparseable: [] };
     parseLine(partialVCard, ':x');
     expect(partialVCard).toStrictEqual({
       nags: [
@@ -665,10 +665,11 @@ describe('Line parsing', () => {
           attributes: { line: ':x', property: '' },
         },
       ],
+      unparseable: [':x'],
     });
   });
   it('should nag on bad parameter', () => {
-    let partialVCard: PartialVCard = { nags: [] };
+    let partialVCard: PartialVCard = { nags: [], unparseable: [] };
     parseLine(partialVCard, 'ADR;y:x');
     expect(partialVCard).toStrictEqual({
       nags: [
@@ -679,10 +680,11 @@ describe('Line parsing', () => {
           attributes: { line: 'ADR;y:x', property: 'ADR', parameter: 'Y' },
         },
       ],
+      unparseable: ['ADR;y:x'],
     });
   });
   it('should nag on bad value', () => {
-    let partialVCard: PartialVCard = { nags: [] };
+    let partialVCard: PartialVCard = { nags: [], unparseable: [] };
     parseLine(partialVCard, 'PHOTO:data:image/jpeg;base64,/9j/');
     expect(partialVCard).toStrictEqual({
       PHOTO: [
@@ -702,6 +704,7 @@ describe('Line parsing', () => {
           },
         },
       ],
+      unparseable: [],
     });
   });
 });
@@ -898,6 +901,7 @@ describe('vCard parsing', () => {
               attributes: { line: 'UID:456', property: 'UID' },
             },
           ],
+          unparseable: ['UID:456'],
         },
       ],
     });
@@ -1010,6 +1014,7 @@ describe('vCard parsing', () => {
               },
             },
           ],
+          unparseable: ['UID;TYPE="de:123'],
         },
       ],
     });
