@@ -5,6 +5,8 @@ import { isPropertyChar, nameToKey } from './utils';
 import {
   atLeastOnceProperties,
   exactlyOnceProperties,
+  ImmutableSingleVCardProperty,
+  ImmutableVCard4,
   isAtLeastOnceProperty,
   isAtMostOnceProperty,
   isExactlyOnceProperty,
@@ -27,10 +29,33 @@ export type ParsedVCards = {
   vCards?: NonEmptyArray<VCard4>;
   nags?: NonEmptyArray<Nag<undefined>>;
 };
+export type ParsedImmutableVCards = {
+  vCards?: NonEmptyArray<ImmutableVCard4>;
+  nags?: NonEmptyArray<Nag<undefined>>;
+};
 export type PartialVCard = Partial<Omit<VCard4, 'nags'>> & {
+  // Possibly empty array during parsing, fixed before returning
   nags: Nag<VCardNagAttributes>[];
   didNotStartWithBEGIN?: boolean;
 };
+
+/**
+ * Parse an RFC 6350 (multi-)vCard input into an array and errors, storing
+ * the original lines for later 1:1 re-export, if nothing has changed on
+ * the respective property.
+ * @param vcf Multiline string of potentially multiple vCards
+ * @param keepErrors Whether very bad vCards should be deleted
+ * @returns Array of vCards with metadata; array of global errors
+ */
+export function parseFaithfulVCards(
+  vcf: string,
+  keepDefective: boolean = false,
+): ParsedImmutableVCards {
+  return _parseVCards(vcf, {
+    keepDefective,
+    faithful: true,
+  }) as ParsedImmutableVCards;
+}
 
 /**
  * Parse an RFC 6350 (multi-)vCard input into an array and errors.
@@ -41,6 +66,22 @@ export type PartialVCard = Partial<Omit<VCard4, 'nags'>> & {
 export function parseVCards(
   vcf: string,
   keepDefective: boolean = false,
+): ParsedVCards {
+  return _parseVCards(vcf, { keepDefective });
+}
+
+/**
+ * Parse an RFC 6350 (multi-)vCard input into an array and errors.
+ * @param vcf Multiline string of potentially multiple vCards
+ * @param keepErrors Whether very bad vCards should be deleted
+ * @returns Array of vCards with metadata; array of global errors
+ */
+function _parseVCards(
+  vcf: string,
+  {
+    keepDefective = false,
+    faithful = false,
+  }: { keepDefective?: boolean; faithful?: boolean },
 ): ParsedVCards {
   let globalNags: Nag<undefined>[] = [];
 
@@ -57,7 +98,7 @@ export function parseVCards(
     if (line === '') {
       continue; // Skip empty lines, required at the very end (optional otherwise)
     }
-    parseLine(vCardInProgress, line);
+    parseLine(vCardInProgress, line, faithful);
     if (!('BEGIN' in vCardInProgress)) {
       vCardInProgress.didNotStartWithBEGIN = true;
     }
@@ -217,11 +258,43 @@ function ensureCardinalities(
 }
 
 /**
+ * A property which can be faithfully turned back into the line, as it was
+ * before parsing, as long as it has not been modified.
+ */
+export class FaithfulProperty<ValueType>
+  implements ImmutableSingleVCardProperty<ValueType>
+{
+  readonly group?: string;
+  readonly parameters?: VCardParameters;
+  readonly value: ValueType;
+  originalLine: string | null;
+
+  constructor(prop: SingleVCardProperty<ValueType>, originalLine?: string) {
+    this.group = prop.group;
+    this.parameters = prop.parameters;
+    this.value = prop.value;
+    this.originalLine = originalLine ?? null;
+  }
+  /**
+   * Marks the vCard parameter as having been modified and returns the same
+   * object, but no longer marked as read-only (reminds of copy-on-write).
+   * @returns The object as writable, marked as having been written to.
+   */
+  modify(): SingleVCardProperty<ValueType> {
+    this.originalLine = null;
+    return this as SingleVCardProperty<ValueType>;
+  }
+}
+/**
  * Parse a line and extend the partial vCard accordingly.
  * @param vCardInProgress The vCard to add the line to, if possible
  * @param line The new line
  */
-export function parseLine(vCardInProgress: PartialVCard, line: string) {
+export function parseLine(
+  vCardInProgress: PartialVCard,
+  line: string,
+  faithful: boolean = false,
+) {
   const propertyInfo = extractProperty(line, vCardInProgress.nags);
   if (!propertyInfo) {
     return;

@@ -158,11 +158,22 @@ export type SingleVCardProperty<ValueType> = {
   parameters?: VCardParameters;
   value: ValueType;
 };
+export type ImmutableSingleVCardProperty<ValueType> = Readonly<
+  SingleVCardProperty<ValueType>
+> & { originalLine: string | null; modify(): SingleVCardProperty<ValueType> };
 
 // Compose the vCard
 // Every element with its type, embedded in a SingleVCardProperty
 export type VCardSingles<Selection extends Partial<typeof knownProperties>> = {
   [k in keyof Selection & keyof typeof knownProperties]: SingleVCardProperty<
+    TypeOf<typeof knownProperties[k]>
+  >;
+};
+export type ImmutableVCardSingles<
+  Selection extends Partial<typeof knownProperties>,
+> = {
+  [k in keyof Selection &
+    keyof typeof knownProperties]: ImmutableSingleVCardProperty<
     TypeOf<typeof knownProperties[k]>
   >;
 };
@@ -173,12 +184,29 @@ export type VCardMultiples<Selection extends Partial<typeof knownProperties>> =
       SingleVCardProperty<TypeOf<typeof knownProperties[k]>>
     >;
   };
+export type ImmutableVCardMultiples<
+  Selection extends Partial<typeof knownProperties>,
+> = {
+  [k in keyof Selection & keyof typeof knownProperties]: NonEmptyArray<
+    ImmutableSingleVCardProperty<TypeOf<typeof knownProperties[k]>>
+  >;
+};
 export type VCard4 = Flatten<
   VCardSingles<ExactlyOnceProperties> &
     Partial<VCardSingles<AtMostOnceProperties>> &
     VCardMultiples<AtLeastOnceProperties> &
     Partial<VCardMultiples<AnyCardinalityProperties>> & {
       x?: Record<string, NonEmptyArray<SingleVCardProperty<string>>>;
+      nags?: NonEmptyArray<Nag<VCardNagAttributes>>;
+      hasErrors: boolean;
+    }
+>;
+export type ImmutableVCard4 = Flatten<
+  ImmutableVCardSingles<ExactlyOnceProperties> &
+    Partial<ImmutableVCardSingles<AtMostOnceProperties>> &
+    ImmutableVCardMultiples<AtLeastOnceProperties> &
+    Partial<ImmutableVCardMultiples<AnyCardinalityProperties>> & {
+      x?: Record<string, NonEmptyArray<ImmutableSingleVCardProperty<string>>>;
       nags?: NonEmptyArray<Nag<VCardNagAttributes>>;
       hasErrors: boolean;
     }
