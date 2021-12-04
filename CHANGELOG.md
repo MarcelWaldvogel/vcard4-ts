@@ -10,6 +10,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 ## Added
 
 - Store unparseable lines in `unparseable[]`.
+- Tighter type checks
 
 ## Fixed
 

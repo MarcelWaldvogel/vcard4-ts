@@ -62,7 +62,14 @@ export type ParseFunction<T> = (
 ) => T;
 
 export class RuntimeTypeAnnotation<Type> {
-  readonly type: Type;
+  /*
+   * We're lying here: `type` is never assigned. But as we are only ever
+   * interested in its type (never read, never written), this is fine.
+   * The alternative would be to make it optional, but then every access
+   * to its type would require removing the `undefined` option.
+   * This "white lie" seems to be cleaner.
+   */
+  readonly type!: Type;
   readonly name: Name;
   readonly parse: ParseFunction<Type>;
   constructor(name: Name, parse: ParseFunction<Type>) {

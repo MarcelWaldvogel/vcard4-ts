@@ -32,6 +32,11 @@ export type PartialVCard = Partial<Omit<VCard4, 'nags' | 'unparseable'>> & {
   unparseable: string[];
   didNotStartWithBEGIN?: boolean;
 };
+export type TransitionVCard = Partial<Omit<VCard4, 'nags' | 'unparseable'>> & {
+  nags?: Nag<VCardNagAttributes>[];
+  unparseable?: string[];
+  didNotStartWithBEGIN?: boolean;
+};
 
 /**
  * Parse an RFC 6350 (multi-)vCard input into an array and errors.
@@ -146,10 +151,10 @@ function ensureCardinalities(
         nagVC(partialVCard.nags, 'VCARD_MISSING_PROP', { property: k });
         partialVCard[k] = { value: expectedValue };
       } else {
-        if (partialVCard[k].value.toUpperCase() !== expectedValue) {
+        if (partialVCard[k]!.value.toUpperCase() !== expectedValue) {
           nagVC(partialVCard.nags, 'VALUE_INVALID', {
             property: k,
-            line: `${k}:${partialVCard[k].value}`,
+            line: `${k}:${partialVCard[k]!.value}`,
           });
         }
       }
@@ -172,21 +177,22 @@ function ensureCardinalities(
     const k = key as keyof typeof partialVCard;
     if (isKnownProperty(k)) {
       if (isAtMostOnceProperty(k) || isExactlyOnceProperty(k)) {
-        const v: SingleVCardProperty<any> = partialVCard[k];
+        const v: SingleVCardProperty<any> = partialVCard[k]!;
         if (
           'parameters' in v &&
           (!v.parameters || Object.keys(v.parameters).length === 0)
         ) {
-          delete partialVCard[k].parameters;
+          delete v.parameters;
         }
       } else {
-        const v: NonEmptyArray<SingleVCardProperty<any>> = partialVCard[k];
+        const v: NonEmptyArray<SingleVCardProperty<any>> = partialVCard[k]!;
         for (const i in v) {
+          const vi = v[i]; // Improves type checks
           if (
-            'parameters' in v[i] &&
-            (!v[i].parameters || Object.keys(v[i].parameters).length === 0)
+            'parameters' in vi &&
+            (!vi.parameters || Object.keys(vi.parameters).length === 0)
           ) {
-            delete partialVCard[k][i].parameters;
+            delete vi.parameters;
           }
         }
       }
@@ -194,35 +200,44 @@ function ensureCardinalities(
   }
   for (const [k, v] of Object.entries(partialVCard.x ?? {})) {
     for (const i in v) {
+      const vi = v[i]; // Improves type checks
       if (
-        'parameters' in v[i] &&
-        (!v[i].parameters || Object.keys(v[i].parameters).length === 0)
+        'parameters' in vi &&
+        (!vi.parameters || Object.keys(vi.parameters).length === 0)
       ) {
-        delete partialVCard.x[k][i].parameters;
+        delete vi.parameters;
       }
     }
   }
 
+  /*
+   * Until the `return` statement, we are in a transition:
+   * At the beginning, `nags` and `unparseable` are arrays, defined but
+   * possibly empty; at the end, both are optional `NonEmptyArray`s.
+   * This is not easily reflected in types, but we're trying.
+   */
+  const transitionVCard = partialVCard as TransitionVCard;
   // Clean Nags; set hasErrors
-  partialVCard.nags = maybeArray(partialVCard.nags);
-  partialVCard.hasErrors = (partialVCard.nags ?? [])
+  if (isNonEmptyArray(transitionVCard.nags!)) {
+    transitionVCard.hasErrors = (transitionVCard.nags ?? [])
     .map((nag) => nag.isError)
     .reduce((a, b) => a || b, false);
-  if (!partialVCard.nags) {
-    delete partialVCard.nags;
+  } else {
+    transitionVCard.hasErrors = false;
+    delete transitionVCard.nags;
   }
 
   // Clean `unparseable`
-  partialVCard.unparseable = maybeArray(partialVCard.unparseable);
-  if (!partialVCard.unparseable) {
-    delete partialVCard.unparseable;
+  transitionVCard.unparseable = maybeArray(transitionVCard.unparseable!);
+  if (!transitionVCard.unparseable) {
+    delete transitionVCard.unparseable;
   }
 
   // Clean possible internal flags
-  delete partialVCard.didNotStartWithBEGIN;
+  delete transitionVCard.didNotStartWithBEGIN;
 
   // All the required fields are here now, great!
-  return partialVCard as VCard4;
+  return transitionVCard as VCard4;
 }
 
 /**
@@ -282,7 +297,7 @@ export function parseLine(vCardInProgress: PartialVCard, line: string) {
     } else {
       // Multiple properties: AtLeastOnce, AnyCardinality
       if (property in vCardInProgress) {
-        vCardInProgress[property].push({ parameters, value: parsedValue });
+        vCardInProgress[property]!.push({ parameters, value: parsedValue });
       } else {
         vCardInProgress[property] = [{ parameters, value: parsedValue }];
       }

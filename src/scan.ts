@@ -9,7 +9,7 @@ import { NonEmptyArray } from './nonEmptyArray';
  */
 export function scanSingleValue(
   s: string,
-  errorCallback: ((error: errorKeys) => void) | null,
+  errorCallback?: (error: errorKeys) => void,
 ): string {
   let index = 0;
   let value = '';

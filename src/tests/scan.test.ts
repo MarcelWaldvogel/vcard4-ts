@@ -2,7 +2,7 @@ import { scan1DValue, scan2DValue, scanSingleValue } from '../scan';
 
 describe('Property value scanning', () => {
   it('should escape single values', () => {
-    expect(scanSingleValue('A\\nB\\\\nC', null)).toStrictEqual('A\nB\\nC');
+    expect(scanSingleValue('A\\nB\\\\nC')).toStrictEqual('A\nB\\nC');
   });
   it('should split 1D values on commas', () => {
     expect(scan1DValue('A,B', ',')).toStrictEqual(['A', 'B']);
