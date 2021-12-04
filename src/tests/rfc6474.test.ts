@@ -1,4 +1,4 @@
-import { parseVCards } from '../parse';
+import { parseVCards } from '../parse.js';
 
 describe('RFC6715 parsing', () => {
   it('should recognize all RFC6715 additions in one go', () => {

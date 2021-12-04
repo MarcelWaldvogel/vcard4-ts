@@ -1,4 +1,4 @@
-import { parseVCards } from '../parse';
+import { parseVCards } from '../parse.js';
 
 describe('RFC8605 parsing', () => {
   it('should recognize CC', () => {

@@ -4,7 +4,7 @@ import {
   NonEmptyStringArrayType,
   NType,
   NumberType,
-} from '../runtimeTypes';
+} from '../runtimeTypes.js';
 
 describe('Runtime type verification', () => {
   it('should parse non-empty string arrays', () => {

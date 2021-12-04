@@ -1,5 +1,5 @@
-import { Nag, VCardNagAttributes } from '../errors';
-import { errorKeys } from '../errorCodes';
+import { Nag, VCardNagAttributes } from '../errors.js';
+import { errorKeys } from '../errorCodes.js';
 import {
   scanPropertyOrGroup,
   extractProperty,
@@ -7,7 +7,7 @@ import {
   parseVCards,
   parseLine,
   PartialVCard,
-} from '../parse';
+} from '../parse.js';
 
 expect.extend({
   toNagAbout(received, error: errorKeys) {

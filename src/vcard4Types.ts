@@ -1,5 +1,5 @@
-import { Nag, VCardNagAttributes } from './errors';
-import { NonEmptyArray } from './nonEmptyArray';
+import { Nag, VCardNagAttributes } from './errors.js';
+import { NonEmptyArray } from './nonEmptyArray.js';
 import {
   ADRType,
   CLIENTPIDMAPType,
@@ -11,7 +11,7 @@ import {
   NumberType,
   StringType,
   TypeOf,
-} from './runtimeTypes';
+} from './runtimeTypes.js';
 
 // VCard4 parameters with runtime introspection capability
 export const knownParameters = {

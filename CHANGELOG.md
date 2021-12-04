@@ -14,6 +14,8 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Fixed
 
+- ESM includes need full file names
+
 ## Changed
 
 # 0.4.0 - 2021-11-19

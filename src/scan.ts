@@ -1,5 +1,5 @@
-import { errorKeys } from './errorCodes';
-import { NonEmptyArray } from './nonEmptyArray';
+import { errorKeys } from './errorCodes.js';
+import { NonEmptyArray } from './nonEmptyArray.js';
 
 /**
  * Remove escape sequences from a single value string.

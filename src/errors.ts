@@ -1,4 +1,4 @@
-import { errorKeys, errors } from './errorCodes';
+import { errorKeys, errors } from './errorCodes.js';
 
 export type Nag<Attributes> = {
   key: string;

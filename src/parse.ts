@@ -1,7 +1,7 @@
-import { nag, Nag, nagVC, VCardNagAttributes } from './errors';
-import { maybeArray, NonEmptyArray } from './nonEmptyArray';
-import { scanSingleParamValue } from './scan';
-import { isPropertyChar, nameToKey } from './utils';
+import { nag, Nag, nagVC, VCardNagAttributes } from './errors.js';
+import { isNonEmptyArray, maybeArray, NonEmptyArray } from './nonEmptyArray.js';
+import { scanSingleParamValue } from './scan.js';
+import { isPropertyChar, nameToKey } from './utils.js';
 import {
   atLeastOnceProperties,
   exactlyOnceProperties,
@@ -15,7 +15,7 @@ import {
   SingleVCardProperty,
   VCard4,
   VCardParameters,
-} from './vcard4Types';
+} from './vcard4Types.js';
 
 export type LineAttributes = {
   property: string;
@@ -220,8 +220,8 @@ function ensureCardinalities(
   // Clean Nags; set hasErrors
   if (isNonEmptyArray(transitionVCard.nags!)) {
     transitionVCard.hasErrors = (transitionVCard.nags ?? [])
-    .map((nag) => nag.isError)
-    .reduce((a, b) => a || b, false);
+      .map((nag) => nag.isError)
+      .reduce((a, b) => a || b, false);
   } else {
     transitionVCard.hasErrors = false;
     delete transitionVCard.nags;

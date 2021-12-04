@@ -1,6 +1,6 @@
-import { scanSingleParamValue } from '../scan';
-import { errorKeys } from '../errorCodes';
-import { parseVCards } from '../parse';
+import { scanSingleParamValue } from '../scan.js';
+import { errorKeys } from '../errorCodes.js';
+import { parseVCards } from '../parse.js';
 
 describe('RFC6868 scanning', () => {
   it('should handle unescaped values', () => {

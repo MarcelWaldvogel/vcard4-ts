@@ -1,5 +1,5 @@
-import { VCard4 } from '../vcard4Types';
-import { sortByPREF } from '../sort';
+import { VCard4 } from '../vcard4Types.js';
+import { sortByPREF } from '../sort.js';
 
 describe('Sorting by preference', () => {
   it('should sort RFC6350 properties with valid PREF value', () => {

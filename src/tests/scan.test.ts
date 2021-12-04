@@ -1,4 +1,4 @@
-import { scan1DValue, scan2DValue, scanSingleValue } from '../scan';
+import { scan1DValue, scan2DValue, scanSingleValue } from '../scan.js';
 
 describe('Property value scanning', () => {
   it('should escape single values', () => {

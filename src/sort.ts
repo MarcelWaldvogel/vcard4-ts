@@ -1,4 +1,4 @@
-import { VCard4, isKnownProperty } from './vcard4Types';
+import { VCard4, isKnownProperty, SingleVCardProperty } from './vcard4Types.js';
 
 export function sortByPREF<T extends Partial<VCard4>>(vcard: T) {
   for (const k of Object.keys(vcard)) {

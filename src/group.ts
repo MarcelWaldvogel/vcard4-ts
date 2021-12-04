@@ -1,4 +1,4 @@
-import { VCard4, isKnownProperty, SingleVCardProperty } from './vcard4Types';
+import { VCard4, isKnownProperty, SingleVCardProperty } from './vcard4Types.js';
 
 export type GroupName = string;
 export type GroupedVCard = Record<GroupName, Partial<VCard4>>;

@@ -1,9 +1,9 @@
 // Minimalistic runtime type introspection for basic (and vCard value) types.
 // Modeled after [https://github.com/colinhacks/zod](Zod).
 
-import { errorKeys } from './errorCodes';
-import { NonEmptyArray } from './nonEmptyArray';
-import { scan1DValue, scan2DValue, scanSingleValue } from './scan';
+import { errorKeys } from './errorCodes.js';
+import { NonEmptyArray } from './nonEmptyArray.js';
+import { scan1DValue, scan2DValue, scanSingleValue } from './scan.js';
 
 export type TypeOf<T extends RuntimeTypeAnnotation<any>> = T['type'];
 export type Flatten<T extends object> = { [k in keyof T]: T[k] };
@@ -58,7 +58,7 @@ export type Name =
 
 export type ParseFunction<T> = (
   rawValue: string,
-  errorCallback: (error: errorKeys) => void,
+  errorCallback?: (error: errorKeys) => void,
 ) => T;
 
 export class RuntimeTypeAnnotation<Type> {

@@ -1,5 +1,5 @@
-import { VCard4 } from '../vcard4Types';
-import { groupVCard } from '../group';
+import { VCard4 } from '../vcard4Types.js';
+import { groupVCard } from '../group.js';
 
 describe('Grouping by property group', () => {
   it('should put everything without a group into the top layer', () => {

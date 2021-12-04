@@ -1,4 +1,4 @@
-import { shorten } from '../errors';
+import { shorten } from '../errors.js';
 
 describe('Shortening strings', () => {
   it('should shorten long strings', () => {
