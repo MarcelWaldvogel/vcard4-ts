@@ -788,6 +788,17 @@ describe('vCard parsing', () => {
       ],
     });
   });
+  it('should nag about underspecified cards when discarding', () => {
+    expect(parseVCards('END:VCARD', false)).toStrictEqual({
+      nags: [
+        {
+          key: 'VCARD_NOT_BEGIN',
+          description: 'vCard did not start with BEGIN line',
+          isError: true,
+        },
+      ],
+    });
+  });
 
   it('should somehow handle bogus cards', () => {
     expect(
@@ -906,10 +917,100 @@ describe('vCard parsing', () => {
       ],
     });
   });
+  it('should nag about plain LF', () => {
+    // Not conformant with the RFC, but I believe we should accept it
+    expect(
+      parseVCards(
+        'BEGIN:VCARD\nVERSION:4.0\nFN:Marcel Waldvogel\nEND:VCARD\n',
+        true,
+      ),
+    ).toStrictEqual({
+      vCards: [
+        {
+          BEGIN: { value: 'VCARD' },
+          VERSION: { value: '4.0' },
+          FN: [{ value: 'Marcel Waldvogel' }],
+          END: { value: 'VCARD' },
+          hasErrors: false,
+        },
+      ],
+      nags: [
+        {
+          key: 'FILE_CRLF',
+          description: 'Lines ending in bare linefeeds instead of CR+LF',
+          isError: false,
+        },
+      ],
+    });
+  });
+  it('should accept missing terminal CRLF', () => {
+    expect(
+      parseVCards(
+        'BEGIN:VCARD\r\nVERSION:4.0\r\nFN:Marcel Waldvogel\r\nEND:VCARD',
+        true,
+      ),
+    ).toStrictEqual({
+      vCards: [
+        {
+          BEGIN: { value: 'VCARD' },
+          VERSION: { value: '4.0' },
+          FN: [{ value: 'Marcel Waldvogel' }],
+          END: { value: 'VCARD' },
+          hasErrors: false,
+        },
+      ],
+    });
+  });
+
+  it('should accept additional leading CRLF', () => {
+    // Not conformant with the RFC, but I believe we should accept it
+    expect(
+      parseVCards(
+        '\r\nBEGIN:VCARD\r\nVERSION:4.0\r\nFN:Marcel Waldvogel\r\nEND:VCARD',
+        true,
+      ),
+    ).toStrictEqual({
+      vCards: [
+        {
+          BEGIN: { value: 'VCARD' },
+          VERSION: { value: '4.0' },
+          FN: [{ value: 'Marcel Waldvogel' }],
+          END: { value: 'VCARD' },
+          hasErrors: false,
+        },
+      ],
+    });
+  });
   it('should handle multiple vCards', () => {
     expect(
       parseVCards(
         'BEGIN:VCARD\r\nVERSION:4.0\r\nFN:Marcel Waldvogel\r\nEND:VCARD\r\nBEGIN:VCARD\r\nVERSION:4.0\r\nFN:Jane Doe\r\nEND:VCARD\r\n',
+        true,
+      ),
+    ).toStrictEqual({
+      vCards: [
+        {
+          BEGIN: { value: 'VCARD' },
+          VERSION: { value: '4.0' },
+          FN: [{ value: 'Marcel Waldvogel' }],
+          END: { value: 'VCARD' },
+          hasErrors: false,
+        },
+        {
+          BEGIN: { value: 'VCARD' },
+          VERSION: { value: '4.0' },
+          FN: [{ value: 'Jane Doe' }],
+          END: { value: 'VCARD' },
+          hasErrors: false,
+        },
+      ],
+    });
+  });
+  it('should handle empty lines', () => {
+    // Not conformant with the RFC, but I believe we should accept it
+    expect(
+      parseVCards(
+        'BEGIN:VCARD\r\nVERSION:4.0\r\nFN:Marcel Waldvogel\r\n\r\nEND:VCARD\r\nBEGIN:VCARD\r\n\r\nVERSION:4.0\r\nFN:Jane Doe\r\nEND:VCARD\r\n',
         true,
       ),
     ).toStrictEqual({
