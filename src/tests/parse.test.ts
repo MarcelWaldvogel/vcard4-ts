@@ -707,6 +707,21 @@ describe('Line parsing', () => {
       unparseable: [],
     });
   });
+  it('should nag on unterminated parameter value', () => {
+    let partialVCard: PartialVCard = { nags: [], unparseable: [] };
+    parseLine(partialVCard, 'tel;cc=":');
+    expect(partialVCard).toStrictEqual({
+      nags: [
+        {
+          key: 'PARAM_UNCLOSED_QUOTE',
+          description: 'Quoted parameter missing closing quote',
+          isError: true,
+          attributes: { line: 'tel;cc=":', property: 'TEL', parameter: 'CC' },
+        },
+      ],
+      unparseable: ['tel;cc=":'],
+    });
+  });
 });
 
 describe('vCard parsing', () => {
